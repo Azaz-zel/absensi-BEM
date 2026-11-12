@@ -43,6 +43,8 @@ export type SessionRow = {
   people_count: number;
   photo_path: string | null;
   ministries: string[];
+  /** Who filled the form; only loaded by the session list. */
+  submitters?: string[];
 };
 
 export type SubmissionRow = {

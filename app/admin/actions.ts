@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { nameKey } from "@/lib/format";
@@ -209,4 +210,70 @@ export async function updateMinistry(form: FormData) {
     .eq("id", id);
 
   refresh();
+}
+
+function officerError(message: string): never {
+  redirect(`/admin/petugas?error=${encodeURIComponent(message)}`);
+}
+
+export async function createOfficer(form: FormData) {
+  await requireAdmin();
+  const fullName = text(form, "full_name").replace(/\s+/g, " ");
+  const email = text(form, "email").toLowerCase();
+  const password = String(form.get("password") ?? "");
+  const ministryId = text(form, "ministry_id");
+  const role = text(form, "role") === "wakil_menteri" ? "wakil_menteri" : "menteri";
+  if (fullName.length < 2) officerError("Nama minimal 2 huruf.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) officerError("Email tidak valid.");
+  if (password.length < 8) officerError("Password minimal 8 karakter.");
+  if (!ministryId) officerError("Pilih kementerian.");
+
+  const db = createSupabaseAdminClient();
+  const { data, error } = await db.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
+  if (error || !data.user) {
+    officerError(
+      /already/i.test(error?.message ?? "")
+        ? "Email sudah terdaftar."
+        : `Gagal membuat akun: ${error?.message ?? "unknown"}`,
+    );
+  }
+
+  const { error: insertError } = await db.from("proker_officers").insert({
+    user_id: data.user.id,
+    email,
+    full_name: fullName,
+    ministry_id: ministryId,
+    role,
+  });
+  if (insertError) {
+    // Don't leave an auth account that can log in but has no officer row.
+    await db.auth.admin.deleteUser(data.user.id);
+    officerError(`Gagal menyimpan petugas: ${insertError.message}`);
+  }
+
+  revalidatePath("/admin/petugas");
+  redirect("/admin/petugas");
+}
+
+export async function deleteOfficer(form: FormData) {
+  await requireAdmin();
+  const userId = text(form, "user_id");
+  if (!userId) return;
+
+  const db = createSupabaseAdminClient();
+  // Only accounts that are officers; never lets this delete an admin login.
+  const { data } = await db
+    .from("proker_officers")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) return;
+
+  // proker_officers row goes with it via on delete cascade.
+  await db.auth.admin.deleteUser(userId);
+  revalidatePath("/admin/petugas");
 }

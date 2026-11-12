@@ -93,7 +93,7 @@ export default async function DashboardPage({
               title="Sesi terbaru"
               action={
                 <Link
-                  href="/admin/sesi"
+                  href={`/admin/sesi/${kind === "proker" ? "proker" : "piket"}`}
                   className="flex items-center gap-1 text-[12px] text-muted transition-colors hover:text-fg"
                 >
                   Lihat semua

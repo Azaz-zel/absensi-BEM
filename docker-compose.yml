@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    restart: unless-stopped
+    env_file: .env
+    # Localhost only: public traffic comes through the elysia Cloudflare tunnel.
+    ports:
+      - "127.0.0.1:3008:3000"
+    # Host resolver list includes IndiHome IPv6 DNS that often times out (5s stalls).
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    security_opt:
+      - no-new-privileges:true

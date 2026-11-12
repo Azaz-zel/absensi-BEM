@@ -2,15 +2,18 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { formatDate, shiftLabel } from "@/lib/format";
 import { StatusBadge } from "@/components/admin/status-badge";
-import type { SessionRow } from "@/lib/types";
+import type { SessionKind, SessionRow } from "@/lib/types";
 
 export function SessionTable({
   sessions,
   compact = false,
+  kind,
   className,
 }: {
   sessions: SessionRow[];
   compact?: boolean;
+  /** Set on a single-kind list: the Jenis column becomes Shift or Petugas. */
+  kind?: SessionKind;
   className?: string;
 }) {
   return (
@@ -19,7 +22,9 @@ export function SessionTable({
         <thead>
           <tr className="border-b border-line text-2xs uppercase tracking-[0.06em] text-subtle">
             <th className="px-4 py-2 font-medium">Tanggal</th>
-            <th className="px-2 py-2 font-medium">Jenis</th>
+            <th className="px-2 py-2 font-medium">
+              {kind === "piket" ? "Shift" : kind === "proker" ? "Petugas" : "Jenis"}
+            </th>
             <th className="px-2 py-2 font-medium">Kementerian</th>
             <th className="px-2 py-2 text-right font-medium">Orang</th>
             <th className="px-4 py-2 text-right font-medium">Status</th>
@@ -51,7 +56,11 @@ export function SessionTable({
                 ) : null}
               </td>
               <td className="whitespace-nowrap px-2 py-2.5 text-[12px] text-muted">
-                {session.kind === "proker" ? (
+                {kind === "proker" ? (
+                  <span className="line-clamp-1 max-w-[180px]">
+                    {session.submitters?.join(", ") || "—"}
+                  </span>
+                ) : session.kind === "proker" ? (
                   <span className="inline-flex items-center rounded-full border border-line px-1.5 py-0.5 text-[10px] font-medium">
                     Proker
                   </span>

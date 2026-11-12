@@ -27,11 +27,13 @@ export function FilterBar({
   shift,
   kind,
   basePath,
+  showKind = true,
 }: {
   days: number;
   shift: string;
   kind: string;
   basePath: string;
+  showKind?: boolean;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -78,24 +80,26 @@ export function FilterBar({
         ))}
       </div>
 
-      <div className="flex rounded-md border border-line bg-surface p-0.5">
-        {KINDS.map((item) => (
-          <button
-            key={item.value}
-            type="button"
-            onClick={() => push("kind", item.value)}
-            aria-pressed={kind === item.value}
-            className={cn(
-              "h-7 rounded-[5px] px-2.5 text-[12px] transition-colors",
-              kind === item.value
-                ? "bg-bg font-medium text-fg shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
-                : "text-muted hover:text-fg",
-            )}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+      {showKind ? (
+        <div className="flex rounded-md border border-line bg-surface p-0.5">
+          {KINDS.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => push("kind", item.value)}
+              aria-pressed={kind === item.value}
+              className={cn(
+                "h-7 rounded-[5px] px-2.5 text-[12px] transition-colors",
+                kind === item.value
+                  ? "bg-bg font-medium text-fg shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+                  : "text-muted hover:text-fg",
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {kind === "proker" ? null : (
         <div className="flex rounded-md border border-line bg-surface p-0.5">

@@ -38,11 +38,11 @@ export default async function SessionDetailPage({
   return (
     <div className="space-y-4">
       <Link
-        href="/admin/sesi"
+        href={`/admin/sesi/${session.kind}`}
         className="inline-flex items-center gap-1.5 text-[12px] text-muted transition-colors hover:text-fg"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        Semua sesi
+        {session.kind === "proker" ? "Sesi proker" : "Sesi piket"}
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-3">

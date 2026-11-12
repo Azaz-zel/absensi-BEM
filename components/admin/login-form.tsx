@@ -5,7 +5,6 @@ import type { FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Button, Field, Input } from "@/components/ui";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function LoginForm({
   fallback = "/admin",
@@ -28,6 +27,10 @@ export function LoginForm({
     setError(null);
     setBusy(true);
 
+    // Loaded on submit so supabase-js stays out of the login page first load.
+    const { createSupabaseBrowserClient } = await import(
+      "@/lib/supabase/client"
+    );
     const supabase = createSupabaseBrowserClient();
     const { error: authError } = await supabase.auth.signInWithPassword({
       email: email.trim(),

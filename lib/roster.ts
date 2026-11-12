@@ -256,7 +256,7 @@ export async function getSessions(
   let query = db
     .from("sessions")
     .select(
-      "id, kind, date, shift, proker_name, location, notes, status, created_at, session_people(person_id, people(full_name), ministries(name)), submissions(photo_path)",
+      "id, kind, date, shift, proker_name, location, notes, status, created_at, session_people(person_id, people(full_name), ministries(name)), submissions(photo_path, submitter_name)",
     )
     .is("deleted_at", null)
     .gte("date", period.from)
@@ -281,7 +281,7 @@ export async function getSessions(
       people: { full_name: string } | null;
       ministries: { name: string } | null;
     }>;
-    submissions: Array<{ photo_path: string | null }>;
+    submissions: Array<{ photo_path: string | null; submitter_name: string }>;
   };
 
   let rows = (data ?? []) as unknown as Nested[];
@@ -306,6 +306,7 @@ export async function getSessions(
     status: s.status,
     created_at: s.created_at,
     people_count: s.session_people.length,
+    submitters: [...new Set(s.submissions.map((sub) => sub.submitter_name))],
     photo_path:
       s.submissions.find((sub) => sub.photo_path)?.photo_path ?? null,
     ministries: [

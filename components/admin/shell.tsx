@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Building2,
+  BriefcaseBusiness,
   CalendarDays,
+  ClipboardList,
   LayoutDashboard,
   Users,
 } from "lucide-react";
@@ -15,9 +17,11 @@ import { Badge } from "@/components/ui";
 
 const NAV = [
   { href: "/admin", label: "Ringkasan", icon: LayoutDashboard },
-  { href: "/admin/sesi", label: "Sesi", icon: CalendarDays },
+  { href: "/admin/sesi/piket", label: "Piket", icon: CalendarDays },
+  { href: "/admin/sesi/proker", label: "Proker", icon: ClipboardList },
   { href: "/admin/orang", label: "Orang", icon: Users },
   { href: "/admin/kementerian", label: "Kementerian", icon: Building2 },
+  { href: "/admin/petugas", label: "Petugas", icon: BriefcaseBusiness },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -102,7 +106,7 @@ export function AdminShell({
           {children}
         </main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
           {NAV.map((item) => {
             const active = isActive(pathname, item.href);
             const Icon = item.icon;
