@@ -49,13 +49,16 @@ export async function deleteSession(form: FormData) {
   if (!id) return;
 
   const db = createSupabaseAdminClient();
-  await db
+  const { data } = await db
     .from("sessions")
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .select("kind")
+    .maybeSingle();
 
-  revalidatePath("/admin");
-  revalidatePath("/admin/sesi");
+  refresh();
+  // Staying on /admin/sesi/[id] would re-render a hidden session as 404.
+  redirect(data?.kind === "proker" ? "/admin/sesi/proker" : "/admin/sesi/piket");
 }
 
 export async function createPerson(form: FormData) {
