@@ -132,8 +132,6 @@ export async function POST(request: Request) {
     submitterName = ctx.officer.name;
     submitterUserId = ctx.officer.userId;
     submitterMinistryId = ctx.officer.ministryId;
-  } else if (submitterName.length < 2 || submitterName.length > 120) {
-    return fail("Nama pengabsen tidak valid.");
   }
 
   if (!Array.isArray(payload.attendees) || payload.attendees.length === 0)
@@ -142,6 +140,9 @@ export async function POST(request: Request) {
     );
   if (payload.attendees.length > 60)
     return fail("Maksimal 60 nama per sesi.");
+  // Piket: satu orang satu absen, tidak bisa mengabsenkan orang lain.
+  if (!isProker && payload.attendees.length !== 1)
+    return fail("Absen piket hanya untuk satu orang.");
 
   if (!photo) return fail("Foto bukti wajib dilampirkan.");
   if (photo.size > MAX_PHOTO_BYTES) return fail("Ukuran foto terlalu besar.");
@@ -177,6 +178,12 @@ export async function POST(request: Request) {
     return fail(
       isProker ? "Isi minimal satu nama yang hadir." : "Isi minimal satu nama yang piket.",
     );
+
+  if (!isProker) {
+    // The person absent-ing is the submitter; client-sent submitterName is ignored.
+    submitterName = cleaned[0].name;
+    if (submitterName.length < 2) return fail("Nama tidak valid.");
+  }
 
   const db = createSupabaseAdminClient();
 

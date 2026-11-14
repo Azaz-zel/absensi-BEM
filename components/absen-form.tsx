@@ -45,7 +45,6 @@ type Draft = {
   prokerName: string;
   location: string;
   notes: string;
-  submitterName: string;
   attendees: Attendee[];
   consent: boolean;
   clientUuid: string;
@@ -99,7 +98,6 @@ export function AbsenForm({
   const [prokerName, setProkerName] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
-  const [submitterName, setSubmitterName] = useState("");
   const [attendees, setAttendees] = useState<Attendee[]>([
     blankAttendee(baseMinistryId),
   ]);
@@ -139,10 +137,11 @@ export function AbsenForm({
       setProkerName(draft.prokerName ?? "");
       setLocation(draft.location ?? "");
       setNotes(draft.notes ?? "");
-      setSubmitterName(draft.submitterName ?? "");
       setAttendees(
         draft.attendees?.length
-          ? draft.attendees
+          ? isProker
+            ? draft.attendees
+            : draft.attendees.slice(0, 1) // piket: satu orang satu absen
           : [blankAttendee(baseMinistryId)],
       );
       setConsent(Boolean(draft.consent));
@@ -157,7 +156,7 @@ export function AbsenForm({
     return () => {
       alive = false;
     };
-  }, [baseMinistryId, draftKey, photoKey]);
+  }, [baseMinistryId, draftKey, photoKey, isProker]);
 
   /* ---------- Draft persist ---------- */
 
@@ -170,7 +169,6 @@ export function AbsenForm({
         prokerName,
         location,
         notes,
-        submitterName,
         attendees,
         consent,
         clientUuid,
@@ -185,7 +183,6 @@ export function AbsenForm({
     prokerName,
     location,
     notes,
-    submitterName,
     attendees,
     consent,
     clientUuid,
@@ -295,8 +292,8 @@ export function AbsenForm({
       if (!prokerName.trim()) return "Nama proker wajib diisi.";
       if (!location.trim()) return "Lokasi proker wajib diisi.";
       if (!officer) return "Sesi login tidak ditemukan. Masuk ulang.";
-    } else if (!submitterName.trim()) {
-      return "Nama pengabsen wajib diisi.";
+    } else if (!attendees[0]?.name.trim()) {
+      return "Nama wajib diisi.";
     }
     if (!attendees.some((a) => a.name.trim()))
       return isProker
@@ -334,7 +331,7 @@ export function AbsenForm({
       prokerName: isProker ? prokerName.trim() : null,
       location: location.trim() || null,
       notes: notes.trim() || null,
-      submitterName: isProker ? officer?.name ?? "" : submitterName.trim(),
+      submitterName: isProker ? officer?.name ?? "" : clean[0]?.name.trim() ?? "",
       consent: true,
       website: (document.getElementById("website") as HTMLInputElement | null)
         ?.value,
@@ -387,7 +384,6 @@ export function AbsenForm({
     setProkerName("");
     setLocation("");
     setNotes("");
-    setSubmitterName("");
     setAttendees([blankAttendee(baseMinistryId)]);
     setConsent(false);
     setPasteText("");
@@ -527,21 +523,22 @@ export function AbsenForm({
         </Section>
       ) : (
         <Section title="Kamu yang mengisi" step="02">
-          <Field label="Nama pengabsen" htmlFor="submitter" required>
-            <Input
-              id="submitter"
-              value={submitterName}
-              onChange={(e) => setSubmitterName(e.target.value)}
-              placeholder="Nama lengkap"
-              autoComplete="name"
-            />
-          </Field>
+          <AttendeeRow
+            index={0}
+            attendee={attendees[0]}
+            people={people}
+            ministries={ministries}
+            canRemove={false}
+            single
+            onChange={(patch) => updateAttendee(attendees[0].key, patch)}
+          />
         </Section>
       )}
 
-      {/* Yang hadir */}
+      {/* Yang hadir (proker only) */}
+      {isProker ? (
       <Section
-        title={isProker ? "Yang hadir" : "Yang piket"}
+        title="Yang hadir"
         step="03"
         action={
           <button
@@ -612,9 +609,10 @@ export function AbsenForm({
           {attendees.filter((a) => a.name.trim()).length} orang tercatat
         </p>
       </Section>
+      ) : null}
 
       {/* Bukti */}
-      <Section title="Foto bukti" step="04">
+      <Section title="Foto bukti" step={isProker ? "04" : "03"}>
         <input
           ref={fileRef}
           type="file"
@@ -747,6 +745,7 @@ function AttendeeRow({
   people,
   ministries,
   canRemove,
+  single = false,
   onChange,
   onRemove,
 }: {
@@ -755,8 +754,9 @@ function AttendeeRow({
   people: Person[];
   ministries: Ministry[];
   canRemove: boolean;
+  single?: boolean;
   onChange: (patch: Partial<Attendee>) => void;
-  onRemove: () => void;
+  onRemove?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -796,9 +796,11 @@ function AttendeeRow({
   return (
     <div className="rounded-md border border-line p-2.5">
       <div className="flex items-start gap-2">
-        <span className="tnum mt-2.5 w-5 shrink-0 text-2xs text-subtle">
-          {String(index + 1).padStart(2, "0")}
-        </span>
+        {single ? null : (
+          <span className="tnum mt-2.5 w-5 shrink-0 text-2xs text-subtle">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+        )}
 
         <div className="min-w-0 flex-1 space-y-2">
           <div className="relative">
@@ -829,7 +831,7 @@ function AttendeeRow({
               placeholder="Pilih atau ketik nama…"
               autoComplete="off"
               autoCapitalize="words"
-              aria-label={`Nama orang ${index + 1}`}
+              aria-label={single ? "Nama kamu" : `Nama orang ${index + 1}`}
               className="h-9 pr-8"
               role="combobox"
               aria-expanded={open}
@@ -913,6 +915,7 @@ function AttendeeRow({
               ))}
             </Select>
 
+            {single ? null : (
             <button
               type="button"
               onClick={onRemove}
@@ -922,6 +925,7 @@ function AttendeeRow({
             >
               <X className="h-4 w-4" />
             </button>
+            )}
           </div>
 
           {attendee.personId ? (
