@@ -217,8 +217,8 @@ export default async function SessionDetailPage({
                           <ExternalLink className="h-3.5 w-3.5" />
                         </span>
                       </a>
-                      <figcaption className="flex items-baseline justify-between gap-2 border-t border-line px-3 py-2">
-                        <span className="min-w-0 truncate text-[11px] text-muted">
+                      <figcaption className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 border-t border-line px-3 py-2">
+                        <span className="min-w-0 break-words text-[11px] text-muted">
                           Diunggah oleh{" "}
                           <span className="font-medium text-fg">
                             {submission.submitter_name}
