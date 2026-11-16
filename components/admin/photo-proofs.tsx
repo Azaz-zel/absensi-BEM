@@ -47,7 +47,7 @@ export function PhotoProofs({ photos }: { photos: PhotoProof[] }) {
                 loading="lazy"
                 className={
                   expanded
-                    ? "max-h-[320px] w-full object-cover transition-transform group-hover:scale-[1.01]"
+                    ? "h-52 w-full object-cover transition-transform group-hover:scale-[1.01]"
                     : "aspect-[4/3] w-full object-cover transition-transform group-hover:scale-[1.01]"
                 }
               />
@@ -58,21 +58,22 @@ export function PhotoProofs({ photos }: { photos: PhotoProof[] }) {
             <figcaption
               className={
                 expanded
-                  ? "flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 border-t border-line px-3 py-2"
+                  ? "border-t border-line px-3 py-2"
                   : "border-t border-line px-2 py-1.5"
               }
             >
               <span
+                title={photo.name}
                 className={
                   expanded
-                    ? "min-w-0 break-words text-[11px] text-muted"
+                    ? "block truncate text-[11px] text-muted"
                     : "block truncate text-[10px] text-muted"
                 }
               >
                 <span className="font-medium text-fg">{photo.name}</span>
               </span>
               {expanded ? (
-                <span className="shrink-0 text-[10px] text-subtle">
+                <span className="block text-[10px] text-subtle">
                   {formatDateTime(photo.createdAt)}
                 </span>
               ) : null}
