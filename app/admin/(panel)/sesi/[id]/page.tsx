@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
-  ExternalLink,
   MapPin,
   RotateCcw,
   Trash2,
@@ -11,6 +10,7 @@ import {
 import { Badge, Button, Card, CardHeader, Separator } from "@/components/ui";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { SubmissionsManager } from "@/components/admin/submissions-manager";
+import { PhotoProofs } from "@/components/admin/photo-proofs";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { deleteSession, verifySession } from "@/app/admin/actions";
 import { loadSessionDetail, isDemoMode } from "@/lib/admin-data";
@@ -185,44 +185,20 @@ export default async function SessionDetailPage({
               description={`${detail.submissions.filter((s) => s.photoUrl).length} foto`}
             />
             {detail.submissions.some((s) => s.photoUrl) ? (
-              <div className="space-y-2 p-3">
-                {detail.submissions.map((submission) =>
-                  submission.photoUrl ? (
-                    <figure
-                      key={submission.id}
-                      className="overflow-hidden rounded-md border border-line bg-bg"
-                    >
-                      <a
-                        href={submission.photoUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group relative block bg-surface"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={submission.photoUrl}
-                          alt={`Bukti dari ${submission.submitter_name}`}
-                          className="max-h-[360px] w-full object-cover transition-transform group-hover:scale-[1.01]"
-                        />
-                        <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-md bg-bg/90 text-fg opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </span>
-                      </a>
-                      <figcaption className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 border-t border-line px-3 py-2">
-                        <span className="min-w-0 break-words text-[11px] text-muted">
-                          Diunggah oleh{" "}
-                          <span className="font-medium text-fg">
-                            {submission.submitter_name}
-                          </span>
-                        </span>
-                        <span className="shrink-0 text-[10px] text-subtle">
-                          {formatDateTime(submission.created_at)}
-                        </span>
-                      </figcaption>
-                    </figure>
-                  ) : null,
+              <PhotoProofs
+                photos={detail.submissions.flatMap((submission) =>
+                  submission.photoUrl
+                    ? [
+                        {
+                          id: submission.id,
+                          name: submission.submitter_name,
+                          createdAt: submission.created_at,
+                          url: submission.photoUrl,
+                        },
+                      ]
+                    : [],
                 )}
-              </div>
+              />
             ) : (
               <div className="px-4 py-10 text-center text-[12px] text-subtle">
                 Tidak ada foto pada sesi ini.

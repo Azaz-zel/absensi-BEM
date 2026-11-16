@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { CheckCircle2, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui";
 import { StatusBadge } from "@/components/admin/status-badge";
@@ -41,6 +41,25 @@ export function SubmissionsManager({
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
+
+  // Satu sesi piket bisa memuat shift pagi & sore: pisahkan per shift.
+  const shiftOrder: Shift[] = ["pagi", "sore"];
+  const rank = (shift: Shift | null) => {
+    const index = shift ? shiftOrder.indexOf(shift) : -1;
+    return index === -1 ? shiftOrder.length : index;
+  };
+  const grouped = submissions.some((submission) => submission.shift)
+    ? [...submissions]
+        .sort((a, b) => rank(a.shift) - rank(b.shift))
+        .reduce<
+          Array<{ shift: Shift | null; items: SubmissionItem[] }>
+        >((groups, submission) => {
+          const last = groups[groups.length - 1];
+          if (last && last.shift === submission.shift) last.items.push(submission);
+          else groups.push({ shift: submission.shift, items: [submission] });
+          return groups;
+        }, [])
+    : [{ shift: null, items: submissions }];
 
   return (
     <div>
@@ -118,83 +137,97 @@ export function SubmissionsManager({
       </div>
 
       <ul className="divide-y divide-line">
-        {submissions.map((submission) => (
-          <li
-            key={submission.id}
-            className="flex items-center gap-2 px-4 py-2.5 sm:gap-3"
-          >
-            <input
-              type="checkbox"
-              className="h-4 w-4 shrink-0 accent-black"
-              checked={selected.includes(submission.id)}
-              onChange={() => toggle(submission.id)}
-              aria-label={`Pilih ${submission.submitter_name}`}
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-medium">
-                {submission.submitter_name}
-              </p>
-              <p className="text-[11px] text-subtle">
-                {submission.shift
-                  ? `${shiftLabel(submission.shift)} · `
-                  : ""}
-                {formatDateTime(submission.created_at)}
-              </p>
-            </div>
-            <StatusBadge status={submission.status} />
-
-            <form action={verifySubmissions}>
-              <input type="hidden" name="session_id" value={sessionId} />
-              <input
-                type="hidden"
-                name="submission_id"
-                value={submission.id}
-              />
-              <input
-                type="hidden"
-                name="verified"
-                value={submission.status === "verified" ? "0" : "1"}
-              />
-              <button
-                type="submit"
-                className={iconButton}
-                title={
-                  submission.status === "verified"
-                    ? "Batalkan verifikasi"
-                    : "Verifikasi kiriman ini"
-                }
-                aria-label={
-                  submission.status === "verified"
-                    ? `Batalkan verifikasi ${submission.submitter_name}`
-                    : `Verifikasi ${submission.submitter_name}`
-                }
-              >
-                {submission.status === "verified" ? (
-                  <RotateCcw className="h-3.5 w-3.5" />
-                ) : (
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                )}
-              </button>
-            </form>
-
-            <form action={deleteSubmissions}>
-              <input type="hidden" name="session_id" value={sessionId} />
-              <input
-                type="hidden"
-                name="submission_id"
-                value={submission.id}
-              />
-              <ConfirmButton
-                message={`Hapus kiriman ${submission.submitter_name}? Foto buktinya ikut terhapus.`}
-                className={`${iconButton} hover:bg-danger/5 hover:text-danger`}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                <span className="sr-only">
-                  Hapus kiriman {submission.submitter_name}
+        {grouped.map((group) => (
+          <Fragment key={group.shift ?? "none"}>
+            {group.shift ? (
+              <li className="flex items-center justify-between gap-2 bg-surface/50 px-4 py-1.5">
+                <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-subtle">
+                  Shift {shiftLabel(group.shift)}
                 </span>
-              </ConfirmButton>
-            </form>
-          </li>
+                <span className="tnum text-[10px] text-subtle">
+                  {group.items.length} orang
+                </span>
+              </li>
+            ) : null}
+            {group.items.map((submission) => (
+              <li
+                key={submission.id}
+                className="flex items-center gap-2 px-4 py-2.5 sm:gap-3"
+              >
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 shrink-0 accent-black"
+                  checked={selected.includes(submission.id)}
+                  onChange={() => toggle(submission.id)}
+                  aria-label={`Pilih ${submission.submitter_name}`}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-medium">
+                    {submission.submitter_name}
+                  </p>
+                  <p className="text-[11px] text-subtle">
+                    {submission.shift
+                      ? `${shiftLabel(submission.shift)} Â· `
+                      : ""}
+                    {formatDateTime(submission.created_at)}
+                  </p>
+                </div>
+                <StatusBadge status={submission.status} />
+    
+                <form action={verifySubmissions}>
+                  <input type="hidden" name="session_id" value={sessionId} />
+                  <input
+                    type="hidden"
+                    name="submission_id"
+                    value={submission.id}
+                  />
+                  <input
+                    type="hidden"
+                    name="verified"
+                    value={submission.status === "verified" ? "0" : "1"}
+                  />
+                  <button
+                    type="submit"
+                    className={iconButton}
+                    title={
+                      submission.status === "verified"
+                        ? "Batalkan verifikasi"
+                        : "Verifikasi kiriman ini"
+                    }
+                    aria-label={
+                      submission.status === "verified"
+                        ? `Batalkan verifikasi ${submission.submitter_name}`
+                        : `Verifikasi ${submission.submitter_name}`
+                    }
+                  >
+                    {submission.status === "verified" ? (
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    ) : (
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+                </form>
+    
+                <form action={deleteSubmissions}>
+                  <input type="hidden" name="session_id" value={sessionId} />
+                  <input
+                    type="hidden"
+                    name="submission_id"
+                    value={submission.id}
+                  />
+                  <ConfirmButton
+                    message={`Hapus kiriman ${submission.submitter_name}? Foto buktinya ikut terhapus.`}
+                    className={`${iconButton} hover:bg-danger/5 hover:text-danger`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="sr-only">
+                      Hapus kiriman {submission.submitter_name}
+                    </span>
+                  </ConfirmButton>
+                </form>
+              </li>
+            ))}
+          </Fragment>
         ))}
       </ul>
     </div>
