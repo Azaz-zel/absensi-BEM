@@ -15,9 +15,12 @@ export default function ProkerLoginPage() {
         <Brand className="mb-6 justify-center" />
 
         <div className="rounded-card border border-line bg-bg p-5">
-          <h1 className="mb-4 text-[17px] font-semibold tracking-tight">
+          <h1 className="mb-1 text-[17px] font-semibold tracking-tight">
             Masuk petugas proker
           </h1>
+          <p className="mb-4 text-[12px] text-muted">
+            Menteri, wakil menteri, dan admin.
+          </p>
 
           {isSupabaseConfigured ? (
             <Suspense fallback={<div className="h-40" />}>

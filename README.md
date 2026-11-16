@@ -8,14 +8,17 @@ TypeScript, Supabase (Postgres, Storage, Auth), self-hosted.
 - **Beranda = pilihan absen**: piket atau proker.
 - **Absen piket** (`/piket`), tanpa login: tanggal, shift Pagi/Sore, lokasi,
   keterangan, nama pengabsen, daftar nama (dropdown seluruh roster),
-  kementerian per nama, foto bukti.
-- **Absen proker** (`/proker`), wajib login sebagai menteri/wakil menteri:
-  tanggal, nama proker, lokasi proker, keterangan, daftar nama yang hadir,
-  foto bukti. Pengisi tercatat otomatis dari akun yang login.
+  kementerian per nama, foto bukti wajib.
+- **Absen proker** (`/proker`), wajib login sebagai menteri, wakil menteri,
+  atau admin: tanggal, nama proker, lokasi proker, keterangan, daftar nama
+  yang hadir, foto bukti wajib. Pengisi tercatat otomatis dari akun yang login.
+- Sesi login bertahan lintas restart browser, jadi petugas tidak perlu masuk
+  ulang setiap saat.
 - Admin tidak ditautkan dari halaman absen; buka `/admin` langsung lalu login.
 - Foto dikompres di browser (~1600px JPEG) dan metadata EXIF dibuang.
 - Draft tersimpan di IndexedDB per jenis absen; kirim ulang tidak membuat duplikat.
-- Roster 64 fungsionaris dari 5 kementerian, sudah di-seed.
+- Roster 84 fungsionaris dari 7 kementerian (termasuk Administrasi Negara dan
+  Keuangan Negara), sudah di-seed.
 - Admin: ranking orang + kementerian, filter tanggal/jenis/shift, tabel sesi,
   verifikasi, foto bukti, kelola roster/kementerian, gabung nama duplikat, CSV.
 
@@ -23,6 +26,9 @@ TypeScript, Supabase (Postgres, Storage, Auth), self-hosted.
 
 1. Buat project di [supabase.com](https://supabase.com).
 2. Buka **SQL Editor**, jalankan `supabase/schema.sql`, lalu `supabase/seed.sql`.
+   `seed.sql` aman dijalankan ulang: kementerian/nama baru (termasuk
+   Administrasi Negara dan Keuangan Negara) ditambahkan tanpa menggandakan
+   data lama.
 3. Salin `.env.example` menjadi `.env.local` dan isi:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (boleh publishable key)
@@ -49,8 +55,9 @@ TypeScript, Supabase (Postgres, Storage, Auth), self-hosted.
    on conflict (user_id) do nothing;
    ```
 
-   `role` diisi `menteri` atau `wakil_menteri`. Akun yang tidak terdaftar di
-   tabel ini tidak bisa membuka form proker.
+   `role` diisi `menteri` atau `wakil_menteri`. Akun admin di tabel `admins`
+   juga otomatis boleh mengisi absen proker dan bebas memilih kementerian
+   untuk tiap nama. Akun lain tidak bisa membuka form proker.
 
 7. Jalankan:
 
@@ -109,12 +116,12 @@ Taruh di belakang nginx/Caddy dengan HTTPS. `NEXT_PUBLIC_*` di-bake saat build,
 
 | Tabel | Isi |
 |---|---|
-| `ministries` | 5 kementerian |
+| `ministries` | 7 kementerian |
 | `people` | roster kanonik (nama, NIM, kementerian) |
 | `sessions` | satu baris per sesi: piket (tanggal + shift) atau proker (tanggal + nama proker) |
 | `session_people` | kehadiran per orang per sesi |
 | `submissions` | klaim pengabsen + foto bukti (proker menyimpan user petugas) |
-| `admins` | whitelist user Supabase Auth untuk panel admin |
+| `admins` | whitelist user Supabase Auth untuk panel admin (juga boleh absen proker) |
 | `proker_officers` | whitelist menteri/wakil menteri untuk absen proker |
 
 Satu sesi piket unik per `(tanggal, shift)`; sesi proker unik per
@@ -131,12 +138,13 @@ python scripts/verify-seed.py "path/to/DATA FUNGSIONARIS.xlsx"
 
 ## Alat bantu dev
 
-Butuh Edge terpasang dan dev server jalan di port 3000.
+Butuh Edge terpasang dan server jalan (contoh di port 3000).
 
 ```bash
 node scripts/measure.cjs http://localhost:3000/admin 390   # cari elemen yang bikin scroll horizontal
 node scripts/shot.cjs http://localhost:3000/admin out.png mobile
 node scripts/console.cjs http://localhost:3000              # error/warning di console
 node scripts/smoke-form.cjs                                 # uji combobox, tempel nama, draft
-node scripts/check-roster-filter.cjs                        # pastikan daftar nama ikut kementerian
+node scripts/check-roster-filter.cjs http://localhost:3000  # pastikan daftar nama ikut kementerian
+node scripts/perf.cjs http://localhost:3000                 # TTFB, FCP, LCP, CLS, ukuran transfer
 ```

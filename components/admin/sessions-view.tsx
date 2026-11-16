@@ -113,7 +113,7 @@ export async function SessionsView({
               q
                 ? "Coba kata kunci lain atau perlebar rentang tanggal."
                 : kind === "proker"
-                  ? "Sesi muncul setelah menteri/wakil menteri mengisi absen proker."
+                  ? "Sesi muncul setelah menteri, wakil menteri, atau admin mengisi absen proker."
                   : "Sesi muncul setelah ada yang mengisi form absen piket."
             }
           />

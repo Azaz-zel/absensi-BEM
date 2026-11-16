@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer-core");
 
+const BASE = process.argv[2] || "http://localhost:3000";
+
 (async () => {
   const browser = await puppeteer.launch({
     executablePath:
@@ -9,7 +11,7 @@ const puppeteer = require("puppeteer-core");
   });
   const page = await browser.newPage();
   await page.setViewport({ width: 390, height: 900, isMobile: true, hasTouch: true });
-  await page.goto("http://localhost:3000/piket", { waitUntil: "networkidle2" });
+  await page.goto(BASE + "/piket", { waitUntil: "networkidle2" });
 
   const readList = async () => {
     const rows = await page.$$eval('[role="option"]', (els) =>
@@ -29,25 +31,34 @@ const puppeteer = require("puppeteer-core");
   const options = await page.$$eval("select option", (els) =>
     els.map((el) => ({ value: el.value, label: el.textContent.trim() })),
   );
-  const target = options.find((o) => o.label === "Kementerian Dalam Negeri");
-  if (!target) throw new Error("ministry option not found");
 
-  await page.select("select", target.value);
-  await new Promise((r) => setTimeout(r, 300));
-  await page.focus('input[role="combobox"]');
-  await new Promise((r) => setTimeout(r, 400));
+  const check = async (label) => {
+    const target = options.find((o) => o.label === label);
+    if (!target) throw new Error(`${label} option not found`);
+    await page.select("select", target.value);
+    await new Promise((r) => setTimeout(r, 300));
+    await page.focus('input[role="combobox"]');
+    await new Promise((r) => setTimeout(r, 400));
+    const filtered = await readList();
+    console.log(
+      `${label}:`,
+      filtered.rows.length,
+      "|",
+      filtered.header,
+      "| di luar:",
+      filtered.rows.filter((row) => !row.includes(label)).length,
+    );
+    return filtered.rows.length;
+  };
 
-  const filtered = await readList();
-  console.log("dalam negeri:", filtered.rows.length, "|", filtered.header);
-  console.log("contoh:", filtered.rows.slice(0, 2).join(" / "));
-  console.log(
-    "baris di luar kementerian:",
-    filtered.rows.filter((row) => !/Kementerian Dalam Negeri/.test(row)).length,
-  );
+  await check("Kementerian Dalam Negeri");
+  const administrasi = await check("Kementerian Administrasi Negara");
+  const keuangan = await check("Kementerian Keuangan Negara");
 
-  await page.screenshot({
-    path: "C:\\Users\\Adrian\\AppData\\Local\\Temp\\opencode\\roster-filter.png",
-  });
+  if (all.rows.length !== 84) throw new Error("roster total is not 84");
+  if (administrasi !== 10) throw new Error("Administrasi count is not 10");
+  if (keuangan !== 10) throw new Error("Keuangan count is not 10");
 
+  console.log("OK: 84 nama, 7 kementerian, filter sesuai.");
   await browser.close();
 })();

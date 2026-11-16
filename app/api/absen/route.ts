@@ -127,7 +127,7 @@ export async function POST(request: Request) {
       return fail("Database belum siap. Jalankan schema.sql lalu coba lagi.", 503);
     }
     if (ctx.mode !== "officer" && ctx.mode !== "demo") {
-      return fail("Akun ini bukan menteri atau wakil menteri.", 403);
+      return fail("Akun ini tidak punya akses absen proker.", 403);
     }
     submitterName = ctx.officer.name;
     submitterUserId = ctx.officer.userId;
