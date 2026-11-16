@@ -113,7 +113,7 @@ export default async function SessionDetailPage({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
+        <div className="min-w-0 space-y-4 lg:col-span-2">
           <Card>
             <CardHeader
               title={session.kind === "proker" ? "Yang hadir" : "Yang piket"}
@@ -178,7 +178,7 @@ export default async function SessionDetailPage({
           </Card>
         </div>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Card>
             <CardHeader
               title="Foto bukti"
