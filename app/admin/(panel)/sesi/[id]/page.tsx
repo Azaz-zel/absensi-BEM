@@ -137,9 +137,11 @@ export default async function SessionDetailPage({
                           key={attendee.personId}
                           className="flex items-baseline justify-between gap-3"
                         >
-                          <span className="text-[13px]">{attendee.name}</span>
+                          <span className="min-w-0 break-words text-[13px]">
+                            {attendee.name}
+                          </span>
                           {attendee.nim ? (
-                            <span className="tnum text-[11px] text-subtle">
+                            <span className="tnum shrink-0 text-[11px] text-subtle">
                               {attendee.nim}
                             </span>
                           ) : null}
