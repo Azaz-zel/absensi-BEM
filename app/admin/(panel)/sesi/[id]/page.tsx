@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Badge, Button, Card, CardHeader, Separator } from "@/components/ui";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { SubmissionsManager } from "@/components/admin/submissions-manager";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { deleteSession, verifySession } from "@/app/admin/actions";
 import { loadSessionDetail, isDemoMode } from "@/lib/admin-data";
@@ -158,27 +159,15 @@ export default async function SessionDetailPage({
           <Card>
             <CardHeader
               title="Riwayat pengisian"
-              description={`${detail.submissions.length} submission`}
+              description={`${detail.submissions.length} submission · ${
+                detail.submissions.filter((s) => s.status === "verified").length
+              } terverifikasi`}
             />
             {detail.submissions.length ? (
-              <ul className="divide-y divide-line">
-                {detail.submissions.map((submission) => (
-                  <li
-                    key={submission.id}
-                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-[13px] font-medium">
-                        {submission.submitter_name}
-                      </p>
-                      <p className="text-[11px] text-subtle">
-                        {formatDateTime(submission.created_at)}
-                      </p>
-                    </div>
-                    <StatusBadge status={submission.status} />
-                  </li>
-                ))}
-              </ul>
+              <SubmissionsManager
+                sessionId={session.id}
+                submissions={detail.submissions}
+              />
             ) : (
               <p className="px-4 py-8 text-center text-[12px] text-subtle">
                 Belum ada submission.

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { nameKey } from "@/lib/format";
+import { PHOTO_BUCKET } from "@/lib/env";
 
 function text(form: FormData, key: string) {
   return String(form.get(key) ?? "").trim();
@@ -59,6 +60,119 @@ export async function deleteSession(form: FormData) {
   refresh();
   // Staying on /admin/sesi/[id] would re-render a hidden session as 404.
   redirect(data?.kind === "proker" ? "/admin/sesi/proker" : "/admin/sesi/piket");
+}
+
+/* Verifikasi per submission: sesi ikut terverifikasi hanya kalau semua
+   submission di dalamnya sudah terverifikasi. */
+async function syncSessionVerification(
+  db: ReturnType<typeof createSupabaseAdminClient>,
+  sessionId: string,
+  verifiedBy: string | null,
+) {
+  const { data } = await db
+    .from("submissions")
+    .select("status")
+    .eq("session_id", sessionId);
+  const rows = data ?? [];
+  const allVerified =
+    rows.length > 0 && rows.every((row) => row.status === "verified");
+
+  await db
+    .from("sessions")
+    .update({
+      status: allVerified ? "verified" : "self_reported",
+      verified_at: allVerified ? new Date().toISOString() : null,
+      verified_by: allVerified ? verifiedBy : null,
+    })
+    .eq("id", sessionId);
+}
+
+export async function verifySubmissions(form: FormData) {
+  const { userId } = await requireAdmin();
+  const sessionId = text(form, "session_id");
+  const verified = text(form, "verified") === "1";
+  const all = text(form, "all") === "1";
+  const ids = form.getAll("submission_id").map(String).filter(Boolean);
+  if (!sessionId || (!all && !ids.length)) return;
+
+  const db = createSupabaseAdminClient();
+  let query = db
+    .from("submissions")
+    .update({ status: verified ? "verified" : "self_reported" })
+    .eq("session_id", sessionId);
+  if (!all) query = query.in("id", ids);
+  await query;
+
+  await syncSessionVerification(db, sessionId, userId);
+  refresh(sessionId);
+}
+
+export async function deleteSubmissions(form: FormData) {
+  await requireAdmin();
+  const sessionId = text(form, "session_id");
+  const ids = form.getAll("submission_id").map(String).filter(Boolean);
+  if (!sessionId || !ids.length) return;
+
+  const db = createSupabaseAdminClient();
+  const { data } = await db
+    .from("submissions")
+    .select("id, submitter_name, photo_path")
+    .eq("session_id", sessionId)
+    .in("id", ids);
+  const found = data ?? [];
+  if (!found.length) return;
+
+  const paths = found
+    .map((row) => row.photo_path)
+    .filter((path): path is string => Boolean(path));
+  if (paths.length) await db.storage.from(PHOTO_BUCKET).remove(paths);
+
+  await db
+    .from("submissions")
+    .delete()
+    .in(
+      "id",
+      found.map((row) => row.id),
+    );
+
+  /* Piket = satu submission satu orang: cabut kehadirannya, kecuali orang
+     itu masih punya submission lain di sesi yang sama. */
+  const { data: session } = await db
+    .from("sessions")
+    .select("kind")
+    .eq("id", sessionId)
+    .maybeSingle();
+
+  if (session?.kind === "piket") {
+    const { data: remaining } = await db
+      .from("submissions")
+      .select("submitter_name")
+      .eq("session_id", sessionId);
+    const remainingKeys = new Set(
+      (remaining ?? []).map((row) => nameKey(row.submitter_name)),
+    );
+    const keys = [
+      ...new Set(found.map((row) => nameKey(row.submitter_name))),
+    ].filter((key) => !remainingKeys.has(key));
+
+    if (keys.length) {
+      const { data: people } = await db
+        .from("people")
+        .select("id")
+        .in("name_key", keys);
+      const personIds = (people ?? []).map((person) => person.id);
+      if (personIds.length) {
+        await db
+          .from("session_people")
+          .delete()
+          .eq("session_id", sessionId)
+          .in("person_id", personIds);
+      }
+    }
+  }
+
+  await syncSessionVerification(db, sessionId, null);
+  refresh(sessionId);
 }
 
 export async function createPerson(form: FormData) {
