@@ -6,7 +6,7 @@ export type SessionStatus = "self_reported" | "verified";
 
 export type PersonSource = "seed" | "admin" | "pending";
 
-export type OfficerRole = "menteri" | "wakil_menteri";
+export type OfficerRole = "menteri" | "wakil_menteri" | "admin";
 
 export type Ministry = {
   id: string;
@@ -85,12 +85,13 @@ export type DashboardData = {
   demo: boolean;
 };
 
-/** Menteri / wakil menteri yang boleh mengisi absen proker. */
+/** Menteri / wakil menteri / admin yang boleh mengisi absen proker. */
 export type ProkerOfficer = {
   userId: string;
   name: string;
   email: string | null;
-  ministryId: string;
+  /** Null untuk admin: bebas memilih kementerian per nama. */
+  ministryId: string | null;
   ministryName: string | null;
   role: OfficerRole;
 };

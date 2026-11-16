@@ -33,6 +33,18 @@ export const DEMO_MINISTRIES: Ministry[] = [
     sort_order: 5,
     is_active: true,
   },
+  {
+    id: "demo-ministry-6",
+    name: "Kementerian Administrasi Negara",
+    sort_order: 6,
+    is_active: true,
+  },
+  {
+    id: "demo-ministry-7",
+    name: "Kementerian Keuangan Negara",
+    sort_order: 7,
+    is_active: true,
+  },
 ];
 
 export const DEMO_PEOPLE: Person[] = [
@@ -86,6 +98,14 @@ export const DEMO_PEOPLE: Person[] = [
   },
   {
     id: "demo-person-7",
+    full_name: "Anak Agung Tria Citra Lestari",
+    nim: "2602020115",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-8",
     full_name: "Cessario Oscar",
     nim: "2602010011",
     ministry_id: "demo-ministry-3",
@@ -93,7 +113,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-8",
+    id: "demo-person-9",
+    full_name: "Desak Made Astiningrat Utami",
+    nim: "2602020604",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-10",
     full_name: "Dewa Gde Julian Abi Wedanta",
     nim: "2501010042",
     ministry_id: "demo-ministry-4",
@@ -101,7 +129,23 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-9",
+    id: "demo-person-11",
+    full_name: "Dewa Gede Agung Dwi Angga Suputra",
+    nim: "2501010004",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-12",
+    full_name: "Dewa Gede Maha Putra",
+    nim: "2501010018",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-13",
     full_name: "Edward Innocent Tandisapan",
     nim: "2602020594",
     ministry_id: "demo-ministry-5",
@@ -109,7 +153,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-10",
+    id: "demo-person-14",
     full_name: "Eka Kurnia Dwi Saputra",
     nim: "2402010077",
     ministry_id: "demo-ministry-1",
@@ -117,7 +161,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-11",
+    id: "demo-person-15",
     full_name: "Gracio Timothy Piga",
     nim: "2401010630",
     ministry_id: "demo-ministry-1",
@@ -125,7 +169,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-12",
+    id: "demo-person-16",
     full_name: "Gusde Andika Saputra",
     nim: "2601010115",
     ministry_id: "demo-ministry-2",
@@ -133,7 +177,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-13",
+    id: "demo-person-17",
     full_name: "Gusti Ayu Putu Riza Indira Putri",
     nim: "2602020525",
     ministry_id: "demo-ministry-5",
@@ -141,7 +185,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-14",
+    id: "demo-person-18",
+    full_name: "Hanifah Aulia Ramadhani",
+    nim: "2501010035",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-19",
     full_name: "Hizkia Gerry Purnomo",
     nim: "2602020130",
     ministry_id: "demo-ministry-2",
@@ -149,7 +201,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-15",
+    id: "demo-person-20",
     full_name: "I Gede Govinda Adi Utama",
     nim: "2502010009",
     ministry_id: "demo-ministry-2",
@@ -157,7 +209,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-16",
+    id: "demo-person-21",
     full_name: "I Gede Novanda Anggara Putra",
     nim: "2501010160",
     ministry_id: "demo-ministry-4",
@@ -165,7 +217,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-17",
+    id: "demo-person-22",
     full_name: "I Gede Sadayatana Putra",
     nim: "2501020011",
     ministry_id: "demo-ministry-3",
@@ -173,7 +225,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-18",
+    id: "demo-person-23",
     full_name: "I Gede Wirdiana Surya Aryoktajaya",
     nim: "2501020082",
     ministry_id: "demo-ministry-1",
@@ -181,7 +233,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-19",
+    id: "demo-person-24",
+    full_name: "I Gusti Agung Aditya Dinata",
+    nim: "2502020350",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-25",
     full_name: "I Gusti Ayu Anindya Echa Swandevi",
     nim: "2502020220",
     ministry_id: "demo-ministry-4",
@@ -189,7 +249,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-20",
+    id: "demo-person-26",
     full_name: "I Gusti Ayu Jentika Dewayani",
     nim: "2501020060",
     ministry_id: "demo-ministry-5",
@@ -197,7 +257,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-21",
+    id: "demo-person-27",
     full_name: "I Gusti Ayu Suci Rahmawati",
     nim: "2602020533",
     ministry_id: "demo-ministry-1",
@@ -205,7 +265,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-22",
+    id: "demo-person-28",
+    full_name: "I Kadek Cri Bhaskara Wirawan Sutha",
+    nim: "2501010052",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-29",
     full_name: "I Kadek Wardita",
     nim: "2602020008",
     ministry_id: "demo-ministry-4",
@@ -213,7 +281,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-23",
+    id: "demo-person-30",
     full_name: "I Komang Yoga Artha Ardhana",
     nim: "2602020032",
     ministry_id: "demo-ministry-5",
@@ -221,7 +289,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-24",
+    id: "demo-person-31",
     full_name: "I Made Pradipta Daro Astra",
     nim: "2502020356",
     ministry_id: "demo-ministry-5",
@@ -229,7 +297,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-25",
+    id: "demo-person-32",
     full_name: "I Made Puja Pratistha",
     nim: "2401010776",
     ministry_id: "demo-ministry-4",
@@ -237,7 +305,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-26",
+    id: "demo-person-33",
+    full_name: "I Nyoman Adrian Bayu Mahotama",
+    nim: "2401010688",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-34",
     full_name: "I Nyoman Radhea Sentana",
     nim: "2601020112",
     ministry_id: "demo-ministry-1",
@@ -245,7 +321,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-27",
+    id: "demo-person-35",
     full_name: "I Nyoman Yudi Artawiguna",
     nim: "2601010161",
     ministry_id: "demo-ministry-4",
@@ -253,7 +329,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-28",
+    id: "demo-person-36",
     full_name: "I Putu Aditya Adhiguna Pratama Putra",
     nim: "2602010112",
     ministry_id: "demo-ministry-4",
@@ -261,7 +337,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-29",
+    id: "demo-person-37",
     full_name: "I Putu Aditya Dharma",
     nim: "2402010206",
     ministry_id: "demo-ministry-3",
@@ -269,7 +345,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-30",
+    id: "demo-person-38",
     full_name: "I Putu Ega Aditya Pramandana",
     nim: "2401020124",
     ministry_id: "demo-ministry-1",
@@ -277,7 +353,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-31",
+    id: "demo-person-39",
     full_name: "I Putu Krishna Merta Pradnya Udrayana",
     nim: "2502020604",
     ministry_id: "demo-ministry-3",
@@ -285,7 +361,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-32",
+    id: "demo-person-40",
     full_name: "I Putu Surya Dipa Cahyana Putra",
     nim: "2501010043",
     ministry_id: "demo-ministry-5",
@@ -293,7 +369,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-33",
+    id: "demo-person-41",
     full_name: "I Wayan Angga Saputra",
     nim: "2502010026",
     ministry_id: "demo-ministry-3",
@@ -301,7 +377,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-34",
+    id: "demo-person-42",
     full_name: "Ida Bagus Parasara Manuaba",
     nim: "2401010764",
     ministry_id: "demo-ministry-2",
@@ -309,7 +385,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-35",
+    id: "demo-person-43",
     full_name: "Ignatius Angguwangthon Dangga",
     nim: "2602020019",
     ministry_id: "demo-ministry-2",
@@ -317,7 +393,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-36",
+    id: "demo-person-44",
     full_name: "Imelda Rukmini Chaimin",
     nim: "2502020575",
     ministry_id: "demo-ministry-1",
@@ -325,7 +401,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-37",
+    id: "demo-person-45",
+    full_name: "Jasmin Puri Anggrainy",
+    nim: "2502020536",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-46",
     full_name: "Juan Aarob Immanuel Raweyai",
     nim: "2602020235",
     ministry_id: "demo-ministry-1",
@@ -333,7 +417,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-38",
+    id: "demo-person-47",
     full_name: "Kadek Andika Putra",
     nim: "2502010027",
     ministry_id: "demo-ministry-3",
@@ -341,7 +425,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-39",
+    id: "demo-person-48",
     full_name: "Kadek Mas Rara Cahyaning",
     nim: "2602020269",
     ministry_id: "demo-ministry-5",
@@ -349,7 +433,23 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-40",
+    id: "demo-person-49",
+    full_name: "Komang Adi Yoga Antara",
+    nim: "2501010156",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-50",
+    full_name: "Komang Ayu Candra Dewi",
+    nim: "2502020654",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-51",
     full_name: "Liyana Putri Zahira",
     nim: "2502020073",
     ministry_id: "demo-ministry-2",
@@ -357,7 +457,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-41",
+    id: "demo-person-52",
     full_name: "Made Damar Tuhu Maha Darma",
     nim: "2401010752",
     ministry_id: "demo-ministry-3",
@@ -365,7 +465,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-42",
+    id: "demo-person-53",
     full_name: "Marsya Aulia Putri",
     nim: "2602010067",
     ministry_id: "demo-ministry-5",
@@ -373,7 +473,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-43",
+    id: "demo-person-54",
     full_name: "Nasrullah Alkharim",
     nim: "2402010084",
     ministry_id: "demo-ministry-1",
@@ -381,7 +481,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-44",
+    id: "demo-person-55",
     full_name: "Ngurah Anom Satrya Wibawa",
     nim: "2601010156",
     ministry_id: "demo-ministry-1",
@@ -389,7 +489,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-45",
+    id: "demo-person-56",
+    full_name: "Ni Gusti Ayu Madyawati",
+    nim: "2502020774",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-57",
     full_name: "Ni Kadek Dea Clarisna Sewananda",
     nim: "2602020014",
     ministry_id: "demo-ministry-2",
@@ -397,7 +505,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-46",
+    id: "demo-person-58",
     full_name: "Ni Kadek Eva Dwi Prajayanti",
     nim: "2602020449",
     ministry_id: "demo-ministry-2",
@@ -405,7 +513,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-47",
+    id: "demo-person-59",
+    full_name: "Ni Ketut Dea Arini",
+    nim: "2502020518",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-60",
     full_name: "Ni Komang Tania Arianita",
     nim: "2602020464",
     ministry_id: "demo-ministry-4",
@@ -413,7 +529,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-48",
+    id: "demo-person-61",
+    full_name: "Ni Komang Tri Nadya Putri",
+    nim: "2602020292",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-62",
     full_name: "Ni Luh Artalita",
     nim: "2602020283",
     ministry_id: "demo-ministry-5",
@@ -421,7 +545,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-49",
+    id: "demo-person-63",
     full_name: "Ni Luh Putu Wimala Ambar Maheswari",
     nim: "2602020458",
     ministry_id: "demo-ministry-5",
@@ -429,7 +553,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-50",
+    id: "demo-person-64",
     full_name: "Ni Made Dwi Paryani",
     nim: "2502020050",
     ministry_id: "demo-ministry-5",
@@ -437,7 +561,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-51",
+    id: "demo-person-65",
     full_name: "Ni Made Kessari Oktaviani",
     nim: "2501010138",
     ministry_id: "demo-ministry-5",
@@ -445,7 +569,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-52",
+    id: "demo-person-66",
     full_name: "Ni Putu Ayu Setiani",
     nim: "2602020515",
     ministry_id: "demo-ministry-5",
@@ -453,7 +577,31 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-53",
+    id: "demo-person-67",
+    full_name: "Ni Putu Nadya Rindyani",
+    nim: "2502020236",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-68",
+    full_name: "Ni Putu Riska Armelia Putri",
+    nim: "2502020059",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-69",
+    full_name: "Ni Wayan Eka Meilani",
+    nim: "2402020299",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-70",
     full_name: "Ni Wayan Febby Feriska",
     nim: "2501010038",
     ministry_id: "demo-ministry-2",
@@ -461,7 +609,15 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-54",
+    id: "demo-person-71",
+    full_name: "Ni Wayan Luh Nika Sriyantini",
+    nim: "2502020122",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-72",
     full_name: "Putu Andika Mahesa Putra",
     nim: "2601020122",
     ministry_id: "demo-ministry-2",
@@ -469,7 +625,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-55",
+    id: "demo-person-73",
     full_name: "Putu Ayu Sukma Aryanthi",
     nim: "2602020450",
     ministry_id: "demo-ministry-5",
@@ -477,7 +633,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-56",
+    id: "demo-person-74",
     full_name: "Putu Dewi Arma Elysa Putri",
     nim: "2502020569",
     ministry_id: "demo-ministry-1",
@@ -485,7 +641,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-57",
+    id: "demo-person-75",
     full_name: "Putu Indira Danas Tri Tiyasa",
     nim: "2502020052",
     ministry_id: "demo-ministry-5",
@@ -493,7 +649,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-58",
+    id: "demo-person-76",
     full_name: "Putu Ocha Valentino Adi Saputra",
     nim: "2502010184",
     ministry_id: "demo-ministry-3",
@@ -501,7 +657,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-59",
+    id: "demo-person-77",
     full_name: "Putu Riyan Sastrawan Sangging",
     nim: "2402020004",
     ministry_id: "demo-ministry-1",
@@ -509,7 +665,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-60",
+    id: "demo-person-78",
     full_name: "Rathu Rifqy Maharany",
     nim: "2502010199",
     ministry_id: "demo-ministry-3",
@@ -517,7 +673,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-61",
+    id: "demo-person-79",
     full_name: "Rayhan Galang Aputra",
     nim: "2402010057",
     ministry_id: "demo-ministry-2",
@@ -525,7 +681,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-62",
+    id: "demo-person-80",
     full_name: "Revalia Bintang Divana Restu",
     nim: "2602020597",
     ministry_id: "demo-ministry-4",
@@ -533,7 +689,23 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-63",
+    id: "demo-person-81",
+    full_name: "Sannyya Rihhaddatul Ais.Y",
+    nim: "2502020516",
+    ministry_id: "demo-ministry-7",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-82",
+    full_name: "Wilsa Dwi Amelia Hastiawan",
+    nim: "2501010009",
+    ministry_id: "demo-ministry-6",
+    source: "seed",
+    is_active: true,
+  },
+  {
+    id: "demo-person-83",
     full_name: "Wisnu Cahya Putra",
     nim: "2502020521",
     ministry_id: "demo-ministry-4",
@@ -541,7 +713,7 @@ export const DEMO_PEOPLE: Person[] = [
     is_active: true,
   },
   {
-    id: "demo-person-64",
+    id: "demo-person-84",
     full_name: "Yoanita Oktaviani Kidi Mukin",
     nim: "2502020423",
     ministry_id: "demo-ministry-4",

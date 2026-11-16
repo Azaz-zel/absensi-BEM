@@ -1,7 +1,6 @@
 -- ============================================================
--- Seed: 5 kementerian piket + 64 fungsionaris
+-- Seed: 7 kementerian piket + 84 fungsionaris
 -- Sumber: DATA FUNGSIONARIS BEM PM INSTIKI KABINET NAVAKARA
--- Kementerian Administrasi Negara & Keuangan Negara sengaja tidak dimasukkan.
 -- ============================================================
 
 insert into public.ministries (name, sort_order) values
@@ -9,7 +8,9 @@ insert into public.ministries (name, sort_order) values
   ('Kementerian Luar Negeri', 2),
   ('Kementerian Komunikasi dan Informasi', 3),
   ('Kementerian Pemberdayaan Sumber Daya Mahasiswa', 4),
-  ('Kementerian Pemberdayaan Masyarakat dan Lingkungan', 5)
+  ('Kementerian Pemberdayaan Masyarakat dan Lingkungan', 5),
+  ('Kementerian Administrasi Negara', 6),
+  ('Kementerian Keuangan Negara', 7)
 on conflict (name) do nothing;
 
 insert into public.people (full_name, name_key, nim, ministry_id, source)
@@ -92,7 +93,31 @@ from (values
   ('Ni Luh Artalita', '2602020283', 'Kementerian Pemberdayaan Masyarakat dan Lingkungan'),
   ('Ni Made Kessari Oktaviani', '2501010138', 'Kementerian Pemberdayaan Masyarakat dan Lingkungan'),
   ('Ni Putu Ayu Setiani', '2602020515', 'Kementerian Pemberdayaan Masyarakat dan Lingkungan'),
-  ('Edward Innocent Tandisapan', '2602020594', 'Kementerian Pemberdayaan Masyarakat dan Lingkungan')
+  ('Edward Innocent Tandisapan', '2602020594', 'Kementerian Pemberdayaan Masyarakat dan Lingkungan'),
+
+  -- Administrasi Negara (10)
+  ('I Nyoman Adrian Bayu Mahotama', '2401010688', 'Kementerian Administrasi Negara'),
+  ('Komang Adi Yoga Antara', '2501010156', 'Kementerian Administrasi Negara'),
+  ('Dewa Gede Maha Putra', '2501010018', 'Kementerian Administrasi Negara'),
+  ('I Gusti Agung Aditya Dinata', '2502020350', 'Kementerian Administrasi Negara'),
+  ('Ni Komang Tri Nadya Putri', '2602020292', 'Kementerian Administrasi Negara'),
+  ('Hanifah Aulia Ramadhani', '2501010035', 'Kementerian Administrasi Negara'),
+  ('Dewa Gede Agung Dwi Angga Suputra', '2501010004', 'Kementerian Administrasi Negara'),
+  ('Ni Gusti Ayu Madyawati', '2502020774', 'Kementerian Administrasi Negara'),
+  ('I Kadek Cri Bhaskara Wirawan Sutha', '2501010052', 'Kementerian Administrasi Negara'),
+  ('Wilsa Dwi Amelia Hastiawan', '2501010009', 'Kementerian Administrasi Negara'),
+
+  -- Keuangan Negara (10)
+  ('Sannyya Rihhaddatul Ais.Y', '2502020516', 'Kementerian Keuangan Negara'),
+  ('Komang Ayu Candra Dewi', '2502020654', 'Kementerian Keuangan Negara'),
+  ('Jasmin Puri Anggrainy', '2502020536', 'Kementerian Keuangan Negara'),
+  ('Ni Wayan Luh Nika Sriyantini', '2502020122', 'Kementerian Keuangan Negara'),
+  ('Ni Wayan Eka Meilani', '2402020299', 'Kementerian Keuangan Negara'),
+  ('Desak Made Astiningrat Utami', '2602020604', 'Kementerian Keuangan Negara'),
+  ('Anak Agung Tria Citra Lestari', '2602020115', 'Kementerian Keuangan Negara'),
+  ('Ni Putu Riska Armelia Putri', '2502020059', 'Kementerian Keuangan Negara'),
+  ('Ni Ketut Dea Arini', '2502020518', 'Kementerian Keuangan Negara'),
+  ('Ni Putu Nadya Rindyani', '2502020236', 'Kementerian Keuangan Negara')
 ) as v(full_name, nim, ministry_name)
 join public.ministries m on m.name = v.ministry_name
 on conflict (name_key) do nothing;

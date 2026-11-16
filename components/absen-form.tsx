@@ -85,7 +85,12 @@ export function AbsenForm({
   ministries: Ministry[];
   people: Person[];
   configured: boolean;
-  officer?: { name: string; ministryId: string | null } | null;
+  officer?: {
+    name: string;
+    ministryId: string | null;
+    role?: "menteri" | "wakil_menteri" | "admin";
+    ministryName?: string | null;
+  } | null;
   blockedReason?: string | null;
 }) {
   const isProker = kind === "proker";
@@ -517,7 +522,17 @@ export function AbsenForm({
           <div className="rounded-md border border-line bg-surface px-3 py-2.5">
             <p className="text-[13px] font-medium">{officer?.name ?? "—"}</p>
             <p className="mt-0.5 text-[11px] text-muted">
-              Tercatat sebagai akun menteri/wakil menteri yang sedang login.
+              {officer
+                ? `${
+                    officer.role === "admin"
+                      ? "Admin"
+                      : officer.role === "wakil_menteri"
+                        ? "Wakil menteri"
+                        : "Menteri"
+                  } · ${
+                    officer.ministryName ?? "bebas pilih kementerian"
+                  }`
+                : "Tercatat dari akun yang sedang login."}
             </p>
           </div>
         </Section>
@@ -612,7 +627,7 @@ export function AbsenForm({
       ) : null}
 
       {/* Bukti */}
-      <Section title="Foto bukti" step={isProker ? "04" : "03"}>
+      <Section title="Foto bukti" step={isProker ? "04" : "03"} required>
         <input
           ref={fileRef}
           type="file"
@@ -666,8 +681,8 @@ export function AbsenForm({
             <span className="text-[13px] font-medium">
               {photoBusy ? "Memproses foto…" : "Ambil atau pilih foto"}
             </span>
-            <span className="text-[12px] text-subtle">
-              Foto dikompres otomatis, metadata lokasi dibuang
+            <span className="text-center text-[12px] text-subtle">
+              Wajib diisi · dikompres otomatis, metadata lokasi dibuang
             </span>
           </button>
         )}
@@ -951,11 +966,13 @@ function Section({
   title,
   step,
   action,
+  required,
   children,
 }: {
   title: string;
   step: string;
   action?: ReactNode;
+  required?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -964,6 +981,11 @@ function Section({
         <div className="flex items-baseline gap-2">
           <span className="tnum text-2xs font-medium text-subtle">{step}</span>
           <h2 className="text-[13px] font-semibold tracking-tight">{title}</h2>
+          {required ? (
+            <span className="rounded-full border border-line bg-surface px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
+              Wajib
+            </span>
+          ) : null}
         </div>
         {action}
       </div>

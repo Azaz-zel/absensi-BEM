@@ -27,7 +27,7 @@ export default async function ProkerPage() {
         icon={<ShieldAlert className="h-5 w-5" />}
         tone="warn"
         title="Absen proker belum siap"
-        description="Database Supabase belum dikonfigurasi. Jalankan schema.sql lalu daftarkan akun menteri/wakil menteri."
+        description="Database Supabase belum dikonfigurasi. Jalankan schema.sql lalu daftarkan akun menteri/wakil menteri atau admin."
       />
     );
   }
@@ -38,7 +38,7 @@ export default async function ProkerPage() {
         icon={<ShieldAlert className="h-5 w-5" />}
         tone="danger"
         title="Akun belum diizinkan"
-        description={`${ctx.email ?? "Akun ini"} tidak terdaftar sebagai menteri atau wakil menteri. Hubungi admin untuk didaftarkan.`}
+        description={`${ctx.email ?? "Akun ini"} tidak terdaftar sebagai menteri, wakil menteri, atau admin. Hubungi admin untuk didaftarkan.`}
         action={
           <LogoutButton redirectTo="/proker/masuk" />
         }
@@ -109,7 +109,12 @@ export default async function ProkerPage() {
             ministries={ministries}
             people={people}
             configured={configured}
-            officer={{ name: officer.name, ministryId: officer.ministryId }}
+            officer={{
+              name: officer.name,
+              ministryId: officer.ministryId,
+              role: officer.role,
+              ministryName: officer.ministryName,
+            }}
             blockedReason={
               demo
                 ? "Mode demo: absen proker bisa dilihat, tapi belum bisa dikirim."
@@ -119,8 +124,8 @@ export default async function ProkerPage() {
         )}
 
         <p className="mt-8 text-center text-[12px] leading-relaxed text-subtle">
-          Absen proker hanya dapat diisi menteri dan wakil menteri. Foto bukti
-          disimpan maksimal 12 bulan dan hanya dapat diakses admin.
+          Absen proker dapat diisi menteri, wakil menteri, dan akun admin. Foto
+          bukti wajib dan disimpan maksimal 12 bulan.
         </p>
 
         <Link

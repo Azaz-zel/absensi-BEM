@@ -21,12 +21,13 @@ const DEMO_OFFICER: ProkerOfficer = {
 };
 
 export function officerRoleLabel(role: ProkerOfficer["role"]): string {
+  if (role === "admin") return "Admin";
   return role === "wakil_menteri" ? "Wakil Menteri" : "Menteri";
 }
 
 /**
  * Who is filling the proker form. Anonymous visitors are sent to the login
- * page; signed-in accounts that are not registered as menteri/wakil menteri
+ * page; signed-in accounts that are neither registered officers nor admins
  * get an explicit "belum diizinkan" screen instead of the form.
  */
 export async function getProkerContext(): Promise<ProkerContext> {
@@ -58,7 +59,31 @@ export async function getProkerContext(): Promise<ProkerContext> {
     return { mode: "unauthorized", email: user.email ?? null };
   }
 
-  if (!data) return { mode: "unauthorized", email: user.email ?? null };
+  if (!data) {
+    // Admin panel accounts may also fill proker absen, for any ministry.
+    const { data: admin } = await db
+      .from("admins")
+      .select("user_id, email, role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (admin) {
+      const email = (admin.email as string | null) ?? user.email ?? null;
+      return {
+        mode: "officer",
+        officer: {
+          userId: user.id,
+          name: email ?? "Admin",
+          email,
+          ministryId: null,
+          ministryName: null,
+          role: "admin",
+        },
+      };
+    }
+
+    return { mode: "unauthorized", email: user.email ?? null };
+  }
 
   return {
     mode: "officer",

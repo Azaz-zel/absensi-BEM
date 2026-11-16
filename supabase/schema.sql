@@ -2,7 +2,7 @@
 -- Absen Piket BEM PM INSTIKI — schema
 -- Jalankan sekali di Supabase SQL Editor.
 -- Mencakup absen piket (publik) dan absen proker (khusus
--- menteri/wakil menteri yang login).
+-- menteri/wakil menteri dan admin yang login).
 -- ============================================================
 
 create extension if not exists "pgcrypto";

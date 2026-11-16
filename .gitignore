@@ -10,3 +10,9 @@ npm-debug.log*
 .env*.local
 *.tsbuildinfo
 next-env.d.ts
+
+# Agent tooling
+.claude/
+.codex/
+.playwright-mcp/
+.serena/
