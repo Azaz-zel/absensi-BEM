@@ -197,23 +197,38 @@ export default async function SessionDetailPage({
               <div className="space-y-2 p-3">
                 {detail.submissions.map((submission) =>
                   submission.photoUrl ? (
-                    <a
+                    <figure
                       key={submission.id}
-                      href={submission.photoUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group relative block overflow-hidden rounded-md border border-line bg-surface"
+                      className="overflow-hidden rounded-md border border-line bg-bg"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={submission.photoUrl}
-                        alt={`Bukti dari ${submission.submitter_name}`}
-                        className="max-h-[360px] w-full object-cover transition-transform group-hover:scale-[1.01]"
-                      />
-                      <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-md bg-bg/90 text-fg opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </span>
-                    </a>
+                      <a
+                        href={submission.photoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group relative block bg-surface"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={submission.photoUrl}
+                          alt={`Bukti dari ${submission.submitter_name}`}
+                          className="max-h-[360px] w-full object-cover transition-transform group-hover:scale-[1.01]"
+                        />
+                        <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-md bg-bg/90 text-fg opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </span>
+                      </a>
+                      <figcaption className="flex items-baseline justify-between gap-2 border-t border-line px-3 py-2">
+                        <span className="min-w-0 truncate text-[11px] text-muted">
+                          Diunggah oleh{" "}
+                          <span className="font-medium text-fg">
+                            {submission.submitter_name}
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-[10px] text-subtle">
+                          {formatDateTime(submission.created_at)}
+                        </span>
+                      </figcaption>
+                    </figure>
                   ) : null,
                 )}
               </div>
