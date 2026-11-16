@@ -1,11 +1,19 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, BellRing } from "lucide-react";
 import { Card, CardHeader, EmptyState, Stat } from "@/components/ui";
+import { AutoRefresh } from "@/components/admin/auto-refresh";
 import { FilterBar } from "@/components/admin/filter-bar";
 import { DailyChart } from "@/components/admin/daily-chart";
 import { SessionTable } from "@/components/admin/session-table";
-import { loadDashboard } from "@/lib/admin-data";
-import { addDays, formatDate, kindLabel, shiftLabel, todayWIB } from "@/lib/format";
+import { loadDashboard, loadPendingSubmissions } from "@/lib/admin-data";
+import {
+  addDays,
+  formatDate,
+  formatDateShort,
+  kindLabel,
+  shiftLabel,
+  todayWIB,
+} from "@/lib/format";
 
 export const metadata = { title: "Ringkasan — Absen Piket" };
 export const dynamic = "force-dynamic";
@@ -30,7 +38,10 @@ export default async function DashboardPage({
 
   const to = todayWIB();
   const from = addDays(to, -(days - 1));
-  const data = await loadDashboard({ from, to, shift, kind });
+  const [data, pending] = await Promise.all([
+    loadDashboard({ from, to, shift, kind }),
+    loadPendingSubmissions(),
+  ]);
 
   const average = data.totalSessions
     ? data.totalAttendance / data.totalSessions
@@ -41,6 +52,8 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-5">
+      <AutoRefresh />
+
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-[20px] font-semibold tracking-tight">Ringkasan</h1>
@@ -58,6 +71,41 @@ export default async function DashboardPage({
         </div>
         <FilterBar days={days} shift={shift} kind={kind} basePath="/admin" />
       </div>
+
+      {pending.count > 0 ? (
+        <div className="flex flex-wrap items-start gap-3 rounded-card border border-warn/30 bg-warn/5 px-4 py-3">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-warn/10 text-warn">
+            <BellRing className="h-4 w-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-medium">
+              {pending.count} kiriman belum diverifikasi
+            </p>
+            <p className="mt-0.5 text-[11px] text-muted">
+              {pending.sessions
+                .slice(0, 3)
+                .map((session) =>
+                  `${
+                    session.kind === "proker"
+                      ? session.proker_name ?? "Proker"
+                      : `Piket ${shiftLabel(session.shift)}`
+                  } ${formatDateShort(session.date)} (${session.count})`,
+                )
+                .join(" · ")}
+              {pending.sessions.length > 3
+                ? ` · +${pending.sessions.length - 3} sesi lain`
+                : ""}
+            </p>
+          </div>
+          <Link
+            href={`/admin/sesi/${pending.sessions[0].session_id}`}
+            className="inline-flex h-8 shrink-0 items-center gap-1 rounded-md border border-line bg-bg px-3 text-[12px] font-medium transition-colors hover:bg-surface"
+          >
+            Tinjau
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat

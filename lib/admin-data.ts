@@ -6,11 +6,18 @@ import {
   getAllMinistries,
   getAllPeople,
   getDashboardData,
+  getPendingSubmissions,
   getSessionDetail,
   getSessions,
   type Period,
 } from "@/lib/roster";
-import type { DashboardData, Ministry, Person, SessionRow } from "@/lib/types";
+import type {
+  DashboardData,
+  Ministry,
+  PendingSummary,
+  Person,
+  SessionRow,
+} from "@/lib/types";
 
 export function isDemoMode() {
   return DEMO_MODE && !hasServiceRole;
@@ -19,6 +26,11 @@ export function isDemoMode() {
 export async function loadDashboard(period: Period): Promise<DashboardData> {
   if (isDemoMode()) return getDemoDashboard(period);
   return getDashboardData(period);
+}
+
+export async function loadPendingSubmissions(): Promise<PendingSummary> {
+  if (isDemoMode()) return { count: 0, sessions: [] };
+  return getPendingSubmissions();
 }
 
 export async function loadSessions(

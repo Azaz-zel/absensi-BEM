@@ -73,6 +73,21 @@ export type DayCount = {
   count: number;
 };
 
+/** Sesi yang masih punya kiriman belum diverifikasi. */
+export type PendingSession = {
+  session_id: string;
+  kind: SessionKind;
+  date: string;
+  shift: Shift | null;
+  proker_name: string | null;
+  count: number;
+};
+
+export type PendingSummary = {
+  count: number;
+  sessions: PendingSession[];
+};
+
 export type DashboardData = {
   totalSessions: number;
   totalAttendance: number;

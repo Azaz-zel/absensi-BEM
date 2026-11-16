@@ -7,6 +7,8 @@ import type {
   DayCount,
   Ministry,
   MinistryRank,
+  PendingSession,
+  PendingSummary,
   Person,
   PersonRank,
   SessionKind,
@@ -246,6 +248,57 @@ type SubmissionLite = {
   created_at: string;
   status: SessionStatus;
 };
+
+/** Hitung kiriman yang belum diverifikasi di semua sesi aktif. */
+export async function getPendingSubmissions(): Promise<PendingSummary> {
+  const db = createSupabaseAdminClient();
+  const { data } = await db
+    .from("submissions")
+    .select(
+      "session_id, sessions!inner(kind, date, shift, proker_name, deleted_at)",
+    )
+    .eq("status", "self_reported");
+
+  type Row = {
+    session_id: string;
+    sessions: {
+      kind: SessionKind;
+      date: string;
+      shift: Shift | null;
+      proker_name: string | null;
+      deleted_at: string | null;
+    } | null;
+  };
+
+  const grouped = new Map<string, PendingSession>();
+  for (const row of (data ?? []) as unknown as Row[]) {
+    const session = row.sessions;
+    if (!session || session.deleted_at) continue;
+
+    const existing = grouped.get(row.session_id);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      grouped.set(row.session_id, {
+        session_id: row.session_id,
+        kind: session.kind,
+        date: session.date,
+        shift: session.shift,
+        proker_name: session.proker_name,
+        count: 1,
+      });
+    }
+  }
+
+  const sessions = [...grouped.values()].sort(
+    (a, b) => b.date.localeCompare(a.date) || b.count - a.count,
+  );
+
+  return {
+    count: sessions.reduce((total, session) => total + session.count, 0),
+    sessions,
+  };
+}
 
 export async function getSessions(
   period: Period,
