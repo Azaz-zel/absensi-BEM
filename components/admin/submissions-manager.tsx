@@ -41,10 +41,6 @@ export function SubmissionsManager({
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
 
-  const selectedSubmissions = submissions.filter((submission) =>
-    selected.includes(submission.id),
-  );
-
   return (
     <div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5">
@@ -197,12 +193,6 @@ export function SubmissionsManager({
           </li>
         ))}
       </ul>
-
-      {selectedSubmissions.length > 0 ? (
-        <p className="border-t border-line px-4 py-2 text-[11px] text-subtle">
-          Terpilih: {selectedSubmissions.map((s) => s.submitter_name).join(", ")}
-        </p>
-      ) : null}
     </div>
   );
 }
