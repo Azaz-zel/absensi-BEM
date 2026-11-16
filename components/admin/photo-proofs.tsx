@@ -66,7 +66,7 @@ export function PhotoProofs({ photos }: { photos: PhotoProof[] }) {
                 title={photo.name}
                 className={
                   expanded
-                    ? "block truncate text-[11px] text-muted"
+                    ? "line-clamp-2 text-[11px] text-muted"
                     : "block truncate text-[10px] text-muted"
                 }
               >
