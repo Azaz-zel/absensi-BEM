@@ -9,6 +9,7 @@ import {
   Check,
   ChevronDown,
   ClipboardPaste,
+  ImagePlus,
   Loader2,
   Plus,
   RotateCcw,
@@ -121,6 +122,7 @@ export function AbsenForm({
   const [pasteText, setPasteText] = useState("");
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
   const hydrated = useRef(false);
 
   /* ---------- Draft restore ---------- */
@@ -279,6 +281,7 @@ export function AbsenForm({
     } finally {
       setPhotoBusy(false);
       if (fileRef.current) fileRef.current.value = "";
+      if (galleryRef.current) galleryRef.current.value = "";
     }
   };
 
@@ -638,6 +641,15 @@ export function AbsenForm({
           className="sr-only"
           onChange={(e) => onPhoto(e.target.files?.[0] ?? null)}
         />
+        <input
+          ref={galleryRef}
+          type="file"
+          accept="image/*"
+          tabIndex={-1}
+          aria-hidden
+          className="sr-only"
+          onChange={(e) => onPhoto(e.target.files?.[0] ?? null)}
+        />
 
         {photoUrl ? (
           <div className="relative overflow-hidden rounded-md border border-line bg-surface">
@@ -650,9 +662,10 @@ export function AbsenForm({
             <div className="absolute right-2 top-2 flex gap-2">
               <button
                 type="button"
-                onClick={() => fileRef.current?.click()}
+                onClick={() => galleryRef.current?.click()}
                 className="grid h-8 w-8 place-items-center rounded-md bg-bg/90 text-fg backdrop-blur transition-colors hover:bg-bg"
                 aria-label="Ganti foto"
+                title="Ganti foto"
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
@@ -667,24 +680,43 @@ export function AbsenForm({
             </div>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={photoBusy}
-            className="flex w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-line px-4 py-10 text-muted transition-colors hover:border-line-strong hover:bg-surface hover:text-fg disabled:opacity-60"
-          >
-            {photoBusy ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Camera className="h-5 w-5" />
-            )}
-            <span className="text-[13px] font-medium">
-              {photoBusy ? "Memproses foto…" : "Ambil atau pilih foto"}
+          <div className="rounded-md border border-dashed border-line px-4 py-6 text-center">
+            <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-surface text-muted">
+              {photoBusy ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Camera className="h-5 w-5" />
+              )}
             </span>
-            <span className="text-center text-[12px] text-subtle">
+            <p className="mt-2 text-[13px] font-medium">
+              {photoBusy ? "Memproses foto…" : "Foto bukti piket"}
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={photoBusy}
+                onClick={() => fileRef.current?.click()}
+              >
+                <Camera className="h-3.5 w-3.5" />
+                Ambil foto
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={photoBusy}
+                onClick={() => galleryRef.current?.click()}
+              >
+                <ImagePlus className="h-3.5 w-3.5" />
+                Pilih dari galeri
+              </Button>
+            </div>
+            <p className="mt-2 text-center text-[12px] text-subtle">
               Wajib diisi · dikompres otomatis, metadata lokasi dibuang
-            </span>
-          </button>
+            </p>
+          </div>
         )}
       </Section>
 
