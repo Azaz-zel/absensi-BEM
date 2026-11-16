@@ -29,12 +29,14 @@ export const DEMO_SESSIONS: SessionRow[] = Array.from({ length: 11 }).map(
     const attendees = attendeesFor(i);
     // Dua sesi terakhir adalah contoh absen proker.
     const isProker = i >= 9;
+    const shift = isProker ? null : i % 2 === 0 ? "pagi" : "sore";
 
     return {
       id: `demo-${i}`,
       kind: isProker ? "proker" : "piket",
       date,
-      shift: isProker ? null : i % 2 === 0 ? "pagi" : "sore",
+      shift,
+      shifts: shift ? [shift] : [],
       proker_name: isProker
         ? i === 9
           ? "Pameran Inovasi Mahasiswa"
@@ -70,7 +72,7 @@ export function getDemoDashboard(
   const rows = DEMO_SESSIONS.map((session, index) => ({ session, index })).filter(
     ({ session }) => {
       if (kind !== "all" && session.kind !== kind) return false;
-      if (shift !== "all" && session.shift !== shift) return false;
+      if (shift !== "all" && !session.shifts.includes(shift)) return false;
       return true;
     },
   );

@@ -87,6 +87,7 @@ create table if not exists public.submissions (
   submitter_name        text not null,
   submitter_user_id     uuid references auth.users(id) on delete set null,
   submitter_ministry_id uuid references public.ministries(id) on delete set null,
+  shift                 text check (shift in ('pagi', 'sore')),
   photo_path            text,
   note                  text,
   ip                    text,

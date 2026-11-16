@@ -20,6 +20,17 @@ export function shiftLabel(shift: Shift | null): string {
   return "—";
 }
 
+/** Satu sesi piket per hari bisa memuat shift pagi dan sore sekaligus. */
+export function shiftsLabel(
+  shifts: Shift[] | null | undefined,
+  fallback?: Shift | null,
+): string {
+  const list = shifts ?? [];
+  if (list.length > 1) return "Pagi & Sore";
+  if (list.length === 1) return shiftLabel(list[0]);
+  return shiftLabel(fallback ?? null);
+}
+
 export function kindLabel(kind: SessionKind): string {
   return kind === "piket" ? "Piket" : "Proker";
 }

@@ -221,20 +221,24 @@ export async function POST(request: Request) {
     let sessionId: string | null = null;
     let merged = false;
 
-    const findSession = () => {
+    const findSession = async () => {
       let query = db
         .from("sessions")
         .select("id, deleted_at")
         .eq("date", payload.date);
 
+      // Piket = satu sesi per hari; shift dicatat per kiriman.
       query = isProker
         ? query.eq("kind", "proker").eq("proker_key", prokerKey as string)
-        : query.eq("kind", "piket").eq("shift", payload.shift as string);
+        : query.eq("kind", "piket");
 
-      return query.maybeSingle();
+      const { data } = await query
+        .order("created_at", { ascending: true })
+        .limit(1);
+      return data?.[0] ?? null;
     };
 
-    const { data: found } = await findSession();
+    const found = await findSession();
 
     if (found) {
       sessionId = found.id;
@@ -264,7 +268,7 @@ export async function POST(request: Request) {
 
       if (insertError) {
         // Lost a race with another submitter: reuse the session they created.
-        const { data: retry } = await findSession();
+        const retry = await findSession();
         if (!retry) throw insertError;
         sessionId = retry.id;
         merged = true;
@@ -379,6 +383,7 @@ export async function POST(request: Request) {
           submitter_ministry_id: submitterMinistryId,
           photo_path: path,
           note: payload.notes?.trim() || null,
+          shift: isProker ? null : payload.shift,
           ip,
           user_agent: request.headers.get("user-agent")?.slice(0, 300) ?? null,
         });

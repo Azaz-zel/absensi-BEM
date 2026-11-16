@@ -121,12 +121,8 @@ export async function getDashboardData(period: Period): Promise<DashboardData> {
     query = query.eq("kind", period.kind);
   }
 
-  if (period.shift && period.shift !== "all" && period.kind !== "proker") {
-    query = query.eq("shift", period.shift);
-  }
-
   const { data: sessionsData } = await query;
-  const sessions = (sessionsData ?? []) as DbSession[];
+  let sessions = (sessionsData ?? []) as DbSession[];
   const ids = sessions.map((s) => s.id);
 
   const [attendanceRes, peopleRes, submissionsRes] = await Promise.all([
@@ -142,14 +138,35 @@ export async function getDashboardData(period: Period): Promise<DashboardData> {
     ids.length
       ? db
           .from("submissions")
-          .select("id, session_id, submitter_name, photo_path, created_at, status")
+          .select(
+            "id, session_id, submitter_name, photo_path, created_at, status, shift",
+          )
           .in("session_id", ids)
           .order("created_at", { ascending: false })
       : Promise.resolve({ data: [] as SubmissionLite[] }),
   ]);
 
-  const attendance = (attendanceRes.data ?? []) as unknown as DbAttendance[];
-  const submissions = (submissionsRes.data ?? []) as SubmissionLite[];
+  let attendance = (attendanceRes.data ?? []) as unknown as DbAttendance[];
+  let submissions = (submissionsRes.data ?? []) as SubmissionLite[];
+
+  const shiftsBySession = new Map<string, Set<Shift>>();
+  for (const sub of submissions) {
+    if (!sub.shift) continue;
+    const list = shiftsBySession.get(sub.session_id) ?? new Set<Shift>();
+    list.add(sub.shift);
+    shiftsBySession.set(sub.session_id, list);
+  }
+
+  // Satu sesi piket per hari: filter shift mengikuti shift tiap kiriman.
+  if (period.shift && period.shift !== "all" && period.kind !== "proker") {
+    const wanted = period.shift;
+    sessions = sessions.filter((s) =>
+      shiftsBySession.get(s.id)?.has(wanted),
+    );
+    const visible = new Set(sessions.map((s) => s.id));
+    attendance = attendance.filter((row) => visible.has(row.session_id));
+    submissions = submissions.filter((row) => visible.has(row.session_id));
+  }
 
   const peopleCount = new Map<string, { name: string; ministry: string | null; count: number }>();
   const ministryCount = new Map<string, { name: string; count: number }>();
@@ -211,6 +228,7 @@ export async function getDashboardData(period: Period): Promise<DashboardData> {
     kind: s.kind,
     date: s.date,
     shift: s.shift,
+    shifts: [...(shiftsBySession.get(s.id) ?? [])],
     proker_name: s.proker_name,
     location: s.location,
     notes: s.notes,
@@ -247,6 +265,7 @@ type SubmissionLite = {
   photo_path: string | null;
   created_at: string;
   status: SessionStatus;
+  shift: Shift | null;
 };
 
 /** Hitung kiriman yang belum diverifikasi di semua sesi aktif. */
@@ -255,12 +274,13 @@ export async function getPendingSubmissions(): Promise<PendingSummary> {
   const { data } = await db
     .from("submissions")
     .select(
-      "session_id, sessions!inner(kind, date, shift, proker_name, deleted_at)",
+      "session_id, shift, sessions!inner(kind, date, shift, proker_name, deleted_at)",
     )
     .eq("status", "self_reported");
 
   type Row = {
     session_id: string;
+    shift: Shift | null;
     sessions: {
       kind: SessionKind;
       date: string;
@@ -278,12 +298,16 @@ export async function getPendingSubmissions(): Promise<PendingSummary> {
     const existing = grouped.get(row.session_id);
     if (existing) {
       existing.count += 1;
+      if (row.shift && !existing.shifts.includes(row.shift)) {
+        existing.shifts.push(row.shift);
+      }
     } else {
       grouped.set(row.session_id, {
         session_id: row.session_id,
         kind: session.kind,
         date: session.date,
         shift: session.shift,
+        shifts: row.shift ? [row.shift] : [],
         proker_name: session.proker_name,
         count: 1,
       });
@@ -309,7 +333,7 @@ export async function getSessions(
   let query = db
     .from("sessions")
     .select(
-      "id, kind, date, shift, proker_name, location, notes, status, created_at, session_people(person_id, people(full_name), ministries(name)), submissions(photo_path, submitter_name)",
+      "id, kind, date, shift, proker_name, location, notes, status, created_at, session_people(person_id, people(full_name), ministries(name)), submissions(photo_path, submitter_name, shift)",
     )
     .is("deleted_at", null)
     .gte("date", period.from)
@@ -322,10 +346,6 @@ export async function getSessions(
     query = query.eq("kind", period.kind);
   }
 
-  if (period.shift && period.shift !== "all" && period.kind !== "proker") {
-    query = query.eq("shift", period.shift);
-  }
-
   const { data } = await query;
 
   type Nested = DbSession & {
@@ -334,7 +354,11 @@ export async function getSessions(
       people: { full_name: string } | null;
       ministries: { name: string } | null;
     }>;
-    submissions: Array<{ photo_path: string | null; submitter_name: string }>;
+    submissions: Array<{
+      photo_path: string | null;
+      submitter_name: string;
+      shift: Shift | null;
+    }>;
   };
 
   let rows = (data ?? []) as unknown as Nested[];
@@ -348,11 +372,26 @@ export async function getSessions(
     );
   }
 
+  // Satu sesi piket per hari; filter shift lewat shift tiap kiriman.
+  if (period.shift && period.shift !== "all" && period.kind !== "proker") {
+    const wanted = period.shift;
+    rows = rows.filter((s) =>
+      s.submissions.some((sub) => sub.shift === wanted),
+    );
+  }
+
   return rows.map((s) => ({
     id: s.id,
     kind: s.kind,
     date: s.date,
     shift: s.shift,
+    shifts: [
+      ...new Set(
+        s.submissions
+          .map((sub) => sub.shift)
+          .filter((shift): shift is Shift => Boolean(shift)),
+      ),
+    ],
     proker_name: s.proker_name,
     location: s.location,
     notes: s.notes,
@@ -392,7 +431,7 @@ export async function getSessionDetail(id: string) {
       db
         .from("submissions")
         .select(
-          "id, submitter_name, photo_path, note, created_at, status",
+          "id, submitter_name, photo_path, note, created_at, status, shift",
         )
         .eq("session_id", id)
         .order("created_at"),
@@ -415,6 +454,7 @@ export async function getSessionDetail(id: string) {
     note: string | null;
     created_at: string;
     status: SessionStatus;
+    shift: Shift | null;
   }>;
 
   const paths = subs.map((s) => s.photo_path).filter((p): p is string => Boolean(p));
@@ -428,6 +468,13 @@ export async function getSessionDetail(id: string) {
 
   return {
     session: session as DbSession,
+    shifts: [
+      ...new Set(
+        subs
+          .map((s) => s.shift)
+          .filter((shift): shift is Shift => Boolean(shift)),
+      ),
+    ],
     attendees: rows
       .map((r) => ({
         personId: r.person_id,

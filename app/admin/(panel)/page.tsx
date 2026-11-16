@@ -12,6 +12,7 @@ import {
   formatDateShort,
   kindLabel,
   shiftLabel,
+  shiftsLabel,
   todayWIB,
 } from "@/lib/format";
 
@@ -88,7 +89,7 @@ export default async function DashboardPage({
                   `${
                     session.kind === "proker"
                       ? session.proker_name ?? "Proker"
-                      : `Piket ${shiftLabel(session.shift)}`
+                      : `Piket ${shiftsLabel(session.shifts, session.shift)}`
                   } ${formatDateShort(session.date)} (${session.count})`,
                 )
                 .join(" · ")}

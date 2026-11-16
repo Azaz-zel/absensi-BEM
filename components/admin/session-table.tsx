@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { formatDate, shiftLabel } from "@/lib/format";
+import { formatDate, shiftsLabel } from "@/lib/format";
 import { StatusBadge } from "@/components/admin/status-badge";
 import type { SessionKind, SessionRow } from "@/lib/types";
 
@@ -65,7 +65,7 @@ export function SessionTable({
                     Proker
                   </span>
                 ) : (
-                  shiftLabel(session.shift)
+                  shiftsLabel(session.shifts, session.shift)
                 )}
               </td>
               <td className="max-w-[220px] px-2 py-2.5 text-[12px] text-muted">

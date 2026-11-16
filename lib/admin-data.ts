@@ -63,6 +63,7 @@ export async function loadSessionDetail(id: string) {
     if (!session) return null;
     return {
       session,
+      shifts: session.shifts,
       attendees: demoAttendeesFor(id),
       submissions: [] as Array<{
         id: string;
@@ -71,6 +72,7 @@ export async function loadSessionDetail(id: string) {
         note: string | null;
         created_at: string;
         status: "self_reported" | "verified";
+        shift: "pagi" | "sore" | null;
         photoUrl: string | null;
       }>,
       ministries: session.ministries,

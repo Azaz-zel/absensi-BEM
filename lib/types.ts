@@ -35,6 +35,8 @@ export type SessionRow = {
   kind: SessionKind;
   date: string;
   shift: Shift | null;
+  /** Shift yang benar-benar terisi di sesi ini (bisa dua-duanya). */
+  shifts: Shift[];
   proker_name: string | null;
   location: string | null;
   notes: string | null;
@@ -53,6 +55,8 @@ export type SubmissionRow = {
   photo_path: string | null;
   created_at: string;
   status: SessionStatus;
+  /** Shift orang yang mengisi; null untuk proker. */
+  shift: Shift | null;
 };
 
 export type PersonRank = {
@@ -79,6 +83,7 @@ export type PendingSession = {
   kind: SessionKind;
   date: string;
   shift: Shift | null;
+  shifts: Shift[];
   proker_name: string | null;
   count: number;
 };

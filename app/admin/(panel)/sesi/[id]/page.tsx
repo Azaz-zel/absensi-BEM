@@ -14,7 +14,7 @@ import { SubmissionsManager } from "@/components/admin/submissions-manager";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { deleteSession, verifySession } from "@/app/admin/actions";
 import { loadSessionDetail, isDemoMode } from "@/lib/admin-data";
-import { formatDate, formatDateTime, shiftLabel } from "@/lib/format";
+import { formatDate, formatDateTime, shiftsLabel } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +55,7 @@ export default async function SessionDetailPage({
             <Badge tone="accent">
               {session.kind === "proker"
                 ? "Proker"
-                : `Shift ${shiftLabel(session.shift)}`}
+                : `Shift ${shiftsLabel(detail.shifts, session.shift)}`}
             </Badge>
             <StatusBadge status={session.status} />
           </div>
@@ -238,7 +238,7 @@ export default async function SessionDetailPage({
                 <dd>
                   {session.kind === "proker"
                     ? session.proker_name ?? "Proker"
-                    : `Piket ${shiftLabel(session.shift)}`}
+                    : `Piket ${shiftsLabel(detail.shifts, session.shift)}`}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">

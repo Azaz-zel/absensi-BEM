@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminContext } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { hasServiceRole } from "@/lib/env";
+import { nameKey, shiftLabel } from "@/lib/format";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
   let query = db
     .from("sessions")
     .select(
-      "id, kind, date, shift, proker_name, location, status, session_people(people(full_name, nim), ministries(name)), submissions(submitter_name, created_at)",
+      "id, kind, date, shift, proker_name, location, status, session_people(people(full_name, nim), ministries(name)), submissions(submitter_name, created_at, shift)",
     )
     .is("deleted_at", null)
     .gte("date", from)
@@ -44,9 +45,6 @@ export async function GET(request: Request) {
     .order("date");
 
   if (kind === "piket" || kind === "proker") query = query.eq("kind", kind);
-  if (kind !== "proker" && (shift === "pagi" || shift === "sore")) {
-    query = query.eq("shift", shift);
-  }
 
   const { data, error } = await query;
   if (error) {
@@ -68,8 +66,18 @@ export async function GET(request: Request) {
     submissions: Array<{
       submitter_name: string;
       created_at: string;
+      shift: "pagi" | "sore" | null;
     }>;
   };
+
+  let sessions = (data ?? []) as unknown as Row[];
+
+  // Filter shift mengikuti shift tiap kiriman (satu sesi per hari).
+  if (kind !== "proker" && (shift === "pagi" || shift === "sore")) {
+    sessions = sessions.filter((session) =>
+      session.submissions.some((sub) => sub.shift === shift),
+    );
+  }
 
   const lines: string[] = [
     [
@@ -86,15 +94,23 @@ export async function GET(request: Request) {
     ].join(","),
   ];
 
-  for (const session of (data ?? []) as unknown as Row[]) {
+  for (const session of sessions) {
     const submitter = session.submissions[0];
+    const shiftByPerson = new Map(
+      session.submissions.map((sub) => [nameKey(sub.submitter_name), sub.shift]),
+    );
     for (const attendance of session.session_people) {
+      const personShift =
+        session.kind === "piket"
+          ? shiftByPerson.get(nameKey(attendance.people?.full_name ?? ""))
+          : null;
+
       lines.push(
         [
           session.date,
           session.kind === "proker" ? "Proker" : "Piket",
           session.proker_name ?? "",
-          session.shift ?? "",
+          personShift ? shiftLabel(personShift) : session.shift ?? "",
           session.location ?? "",
           session.status,
           attendance.people?.full_name ?? "",

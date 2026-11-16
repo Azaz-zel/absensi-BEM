@@ -5,15 +5,16 @@ import { CheckCircle2, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { ConfirmButton } from "@/components/admin/confirm-button";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, shiftLabel } from "@/lib/format";
 import { deleteSubmissions, verifySubmissions } from "@/app/admin/actions";
-import type { SessionStatus } from "@/lib/types";
+import type { SessionStatus, Shift } from "@/lib/types";
 
 export type SubmissionItem = {
   id: string;
   submitter_name: string;
   created_at: string;
   status: SessionStatus;
+  shift: Shift | null;
   photoUrl: string | null;
 };
 
@@ -134,6 +135,9 @@ export function SubmissionsManager({
                 {submission.submitter_name}
               </p>
               <p className="text-[11px] text-subtle">
+                {submission.shift
+                  ? `${shiftLabel(submission.shift)} · `
+                  : ""}
                 {formatDateTime(submission.created_at)}
               </p>
             </div>
