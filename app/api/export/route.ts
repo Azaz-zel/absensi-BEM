@@ -55,7 +55,7 @@ export async function GET(request: Request) {
     id: string;
     kind: "piket" | "proker";
     date: string;
-    shift: string | null;
+    shift: "pagi" | "sore" | null;
     proker_name: string | null;
     location: string | null;
     status: string;
@@ -110,7 +110,9 @@ export async function GET(request: Request) {
           session.date,
           session.kind === "proker" ? "Proker" : "Piket",
           session.proker_name ?? "",
-          personShift ? shiftLabel(personShift) : session.shift ?? "",
+          session.kind === "proker"
+            ? ""
+            : shiftLabel(personShift ?? session.shift),
           session.location ?? "",
           session.status,
           attendance.people?.full_name ?? "",

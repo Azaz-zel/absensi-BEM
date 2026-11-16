@@ -407,6 +407,13 @@ export async function POST(request: Request) {
       throw writeError;
     }
 
+    // Kiriman baru belum diverifikasi: sesi kembali berstatus menunggu.
+    await db
+      .from("sessions")
+      .update({ status: "self_reported", verified_at: null })
+      .eq("id", sessionId)
+      .eq("status", "verified");
+
     return NextResponse.json({
       ok: true,
       already: false,

@@ -314,6 +314,30 @@ export async function getPendingSubmissions(): Promise<PendingSummary> {
     }
   }
 
+  // Satu sesi piket per hari: tampilkan seluruh shift sesi, bukan cuma shift
+  // kiriman yang belum diverifikasi.
+  if (grouped.size) {
+    const { data: allSubs } = await db
+      .from("submissions")
+      .select("session_id, shift")
+      .in("session_id", [...grouped.keys()]);
+
+    const shiftsBySession = new Map<string, Shift[]>();
+    for (const row of (allSubs ?? []) as Array<{
+      session_id: string;
+      shift: Shift | null;
+    }>) {
+      if (!row.shift) continue;
+      const list = shiftsBySession.get(row.session_id) ?? [];
+      if (!list.includes(row.shift)) list.push(row.shift);
+      shiftsBySession.set(row.session_id, list);
+    }
+
+    for (const pending of grouped.values()) {
+      pending.shifts = shiftsBySession.get(pending.session_id) ?? pending.shifts;
+    }
+  }
+
   const sessions = [...grouped.values()].sort(
     (a, b) => b.date.localeCompare(a.date) || b.count - a.count,
   );
