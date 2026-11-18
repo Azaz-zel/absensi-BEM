@@ -6,6 +6,7 @@ import {
   AlertCircle,
   ArrowRight,
   Camera,
+  CalendarDays,
   Check,
   ChevronDown,
   ClipboardPaste,
@@ -41,7 +42,6 @@ type Attendee = {
 };
 
 type Draft = {
-  date: string;
   shift: Shift;
   prokerName: string;
   location: string;
@@ -99,7 +99,8 @@ export function AbsenForm({
   const photoKey = `${draftKey}-photo`;
   const baseMinistryId = isProker ? officer?.ministryId ?? null : null;
 
-  const [date, setDate] = useState(todayWIB());
+  // Tanggal selalu hari ini (Asia/Jakarta) — tidak bisa diubah.
+  const today = todayWIB();
   const [shift, setShift] = useState<Shift>("pagi");
   const [prokerName, setProkerName] = useState("");
   const [location, setLocation] = useState("");
@@ -139,7 +140,6 @@ export function AbsenForm({
       hydrated.current = true;
       if (!draft) return;
 
-      setDate(draft.date || todayWIB());
       setShift(draft.shift === "sore" ? "sore" : "pagi");
       setProkerName(draft.prokerName ?? "");
       setLocation(draft.location ?? "");
@@ -171,7 +171,6 @@ export function AbsenForm({
     if (!hydrated.current || success) return;
     const timer = setTimeout(() => {
       const draft: Draft = {
-        date,
         shift,
         prokerName,
         location,
@@ -185,7 +184,6 @@ export function AbsenForm({
     }, 500);
     return () => clearTimeout(timer);
   }, [
-    date,
     shift,
     prokerName,
     location,
@@ -294,8 +292,6 @@ export function AbsenForm({
   /* ---------- Validation + submit ---------- */
 
   const validate = (): string | null => {
-    if (!date) return "Tanggal wajib diisi.";
-    if (date > todayWIB()) return "Tanggal tidak boleh di masa depan.";
     if (isProker) {
       if (!prokerName.trim()) return "Nama proker wajib diisi.";
       if (!location.trim()) return "Lokasi proker wajib diisi.";
@@ -328,13 +324,15 @@ export function AbsenForm({
     }
 
     setError(null);
+    // Ambil ulang saat submit supaya tetap benar walau tab dibuka lewat tengah malam.
+    const submitDate = todayWIB();
     setSubmitting(true);
 
     const clean = attendees.filter((a) => a.name.trim());
     const payload = {
       clientUuid,
       kind,
-      date,
+      date: submitDate,
       shift: isProker ? null : shift,
       prokerName: isProker ? prokerName.trim() : null,
       location: location.trim() || null,
@@ -365,7 +363,7 @@ export function AbsenForm({
 
       setSuccess({
         kind,
-        date,
+        date: submitDate,
         shift: isProker ? null : shift,
         prokerName: isProker ? prokerName.trim() : null,
         count: clean.length,
@@ -387,7 +385,6 @@ export function AbsenForm({
     setSuccess(null);
     setError(null);
     setRestored(false);
-    setDate(todayWIB());
     setShift("pagi");
     setProkerName("");
     setLocation("");
@@ -438,14 +435,12 @@ export function AbsenForm({
       {/* Sesi */}
       <Section title={isProker ? "Detail proker" : "Sesi piket"} step="01">
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Tanggal" htmlFor="date" required>
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              max={todayWIB()}
-              onChange={(e) => setDate(e.target.value)}
-            />
+          <Field label="Tanggal" required>
+            <div className="flex h-10 items-center gap-2 rounded-md border border-line bg-surface px-3 text-[15px] sm:text-sm">
+              <CalendarDays className="h-4 w-4 shrink-0 text-subtle" aria-hidden />
+              <span className="font-medium">{formatDate(today)}</span>
+              <span className="ml-auto text-[11px] text-subtle">hari ini</span>
+            </div>
           </Field>
           {isProker ? (
             <Field label="Nama proker" htmlFor="proker" required>
