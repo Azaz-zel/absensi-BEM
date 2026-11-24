@@ -42,6 +42,8 @@ type Attendee = {
 };
 
 type Draft = {
+  /** Tanggal WIB draft dibuat. Draft dari hari lain dibuang. */
+  date: string;
   shift: Shift;
   prokerName: string;
   location: string;
@@ -49,8 +51,10 @@ type Draft = {
   attendees: Attendee[];
   consent: boolean;
   clientUuid: string;
-  photo: Blob | null;
 };
+
+/** Foto disimpan terpisah dari draft teks supaya mengetik tidak menulis ulang blob. */
+type StoredPhoto = { blob: Blob; date: string };
 
 type SuccessInfo = {
   kind: SessionKind;
@@ -119,44 +123,67 @@ export function AbsenForm({
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<SuccessInfo | null>(null);
   const [restored, setRestored] = useState(false);
+  const [restoredFields, setRestoredFields] = useState(false);
+  const [restoredPhoto, setRestoredPhoto] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
 
   const fileRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const hydrated = useRef(false);
+  const photoTouched = useRef(false);
 
   /* ---------- Draft restore ---------- */
 
   useEffect(() => {
+    if (hydrated.current) return;
     let alive = true;
     (async () => {
       // The photo lives under its own key so typing never rewrites the blob.
       const [draft, storedPhoto] = await Promise.all([
         loadDraft<Draft>(draftKey),
-        loadDraft<Blob>(photoKey),
+        loadDraft<StoredPhoto | Blob>(photoKey),
       ]);
       if (!alive) return;
       hydrated.current = true;
-      if (!draft) return;
 
-      setShift(draft.shift === "sore" ? "sore" : "pagi");
-      setProkerName(draft.prokerName ?? "");
-      setLocation(draft.location ?? "");
-      setNotes(draft.notes ?? "");
-      setAttendees(
-        draft.attendees?.length
-          ? isProker
-            ? draft.attendees
-            : draft.attendees.slice(0, 1) // piket: satu orang satu absen
-          : [blankAttendee(baseMinistryId)],
-      );
-      setConsent(Boolean(draft.consent));
-      setClientUuid(draft.clientUuid || uid());
-      const photoBlob = storedPhoto ?? draft.photo;
-      if (photoBlob instanceof Blob) {
-        setPhoto(photoBlob);
-        setPhotoUrl(URL.createObjectURL(photoBlob));
+      // Form selalu mengirim tanggal hari ini, jadi draft kemarin sudah basi.
+      const today = todayWIB();
+      const validDraft = draft && draft.date === today ? draft : null;
+      const validPhoto =
+        storedPhoto &&
+        !(storedPhoto instanceof Blob) &&
+        storedPhoto.date === today &&
+        storedPhoto.blob instanceof Blob
+          ? storedPhoto.blob
+          : null;
+
+      if (draft && !validDraft) void clearDraft(draftKey);
+      if (storedPhoto && !validPhoto) void clearDraft(photoKey);
+      if (!validDraft && !validPhoto) return;
+
+      if (validDraft) {
+        setShift(validDraft.shift === "sore" ? "sore" : "pagi");
+        setProkerName(validDraft.prokerName ?? "");
+        setLocation(validDraft.location ?? "");
+        setNotes(validDraft.notes ?? "");
+        setAttendees(
+          validDraft.attendees?.length
+            ? isProker
+              ? validDraft.attendees
+              : validDraft.attendees.slice(0, 1) // piket: satu orang satu absen
+            : [blankAttendee(baseMinistryId)],
+        );
+        setConsent(Boolean(validDraft.consent));
+        setClientUuid(validDraft.clientUuid || uid());
+        setRestoredFields(true);
+      }
+
+      // Jangan timpa foto yang sudah dipilih sebelum draft selesai dimuat.
+      if (validPhoto && !photoTouched.current) {
+        setPhoto(validPhoto);
+        setPhotoUrl(URL.createObjectURL(validPhoto));
+        setRestoredPhoto(true);
       }
       setRestored(true);
     })();
@@ -171,6 +198,7 @@ export function AbsenForm({
     if (!hydrated.current || success) return;
     const timer = setTimeout(() => {
       const draft: Draft = {
+        date: todayWIB(),
         shift,
         prokerName,
         location,
@@ -178,7 +206,6 @@ export function AbsenForm({
         attendees,
         consent,
         clientUuid,
-        photo: null,
       };
       void saveDraft(draftKey, draft);
     }, 500);
@@ -198,8 +225,12 @@ export function AbsenForm({
   // Photo changes are rare and the blob is large: write it only on change.
   useEffect(() => {
     if (!hydrated.current) return;
-    if (photo) void saveDraft(photoKey, photo);
-    else void clearDraft(photoKey);
+    if (photo) {
+      const stored: StoredPhoto = { blob: photo, date: todayWIB() };
+      void saveDraft(photoKey, stored);
+    } else {
+      void clearDraft(photoKey);
+    }
   }, [photo, photoKey]);
 
   useEffect(() => {
@@ -267,6 +298,9 @@ export function AbsenForm({
 
   const onPhoto = async (file: File | null) => {
     if (!file) return;
+    photoTouched.current = true;
+    setRestoredPhoto(false);
+    if (!restoredFields) setRestored(false);
     setError(null);
     setPhotoBusy(true);
     try {
@@ -284,9 +318,12 @@ export function AbsenForm({
   };
 
   const removePhoto = () => {
+    photoTouched.current = true;
     if (photoUrl) URL.revokeObjectURL(photoUrl);
     setPhoto(null);
     setPhotoUrl(null);
+    setRestoredPhoto(false);
+    if (!restoredFields) setRestored(false);
   };
 
   /* ---------- Validation + submit ---------- */
@@ -371,7 +408,7 @@ export function AbsenForm({
         already: Boolean(json.already),
         names: clean.map((a) => a.name.trim()),
       });
-      await clearDraft(draftKey);
+      await Promise.all([clearDraft(draftKey), clearDraft(photoKey)]);
     } catch {
       setError(
         "Koneksi terputus. Isianmu tersimpan — tekan Kirim lagi saat sinyal kembali.",
@@ -385,6 +422,8 @@ export function AbsenForm({
     setSuccess(null);
     setError(null);
     setRestored(false);
+    setRestoredFields(false);
+    setRestoredPhoto(false);
     setShift("pagi");
     setProkerName("");
     setLocation("");
@@ -421,7 +460,11 @@ export function AbsenForm({
 
       {restored ? (
         <Notice tone="neutral">
-          Isian sebelumnya dipulihkan otomatis.
+          {restoredFields
+            ? `Isian sebelumnya dipulihkan otomatis${
+                restoredPhoto ? ", termasuk foto bukti" : ""
+              }.`
+            : "Foto bukti sebelumnya dipulihkan otomatis."}
           <button
             type="button"
             onClick={() => setRestored(false)}
@@ -647,31 +690,43 @@ export function AbsenForm({
         />
 
         {photoUrl ? (
-          <div className="relative overflow-hidden rounded-md border border-line bg-surface">
+          <div className="overflow-hidden rounded-md border border-line bg-surface">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={photoUrl}
               alt="Pratinjau foto bukti"
               className="max-h-72 w-full object-cover"
             />
-            <div className="absolute right-2 top-2 flex gap-2">
-              <button
-                type="button"
-                onClick={() => galleryRef.current?.click()}
-                className="grid h-8 w-8 place-items-center rounded-md bg-bg/90 text-fg backdrop-blur transition-colors hover:bg-bg"
-                aria-label="Ganti foto"
-                title="Ganti foto"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={removePhoto}
-                className="grid h-8 w-8 place-items-center rounded-md bg-bg/90 text-danger backdrop-blur transition-colors hover:bg-bg"
-                aria-label="Hapus foto"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-2.5 py-2">
+              <p className="text-[12px] text-subtle">
+                {photoBusy ? "Memproses foto…" : "Foto siap dikirim"}
+              </p>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  disabled={photoBusy}
+                  onClick={() => galleryRef.current?.click()}
+                >
+                  {photoBusy ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-3.5 w-3.5" />
+                  )}
+                  Ganti foto
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="danger"
+                  disabled={photoBusy}
+                  onClick={removePhoto}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Hapus
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
